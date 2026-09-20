@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ColorCue — セットアップ</title>
-<meta name="description" content="色を合図に、声で文字を入力する。ColorCue のセットアップ手順。">
+<meta name="description" content="あなたが決めた色をカメラに見せると、AIに音声入力ができる。ColorCue のセットアップ手順。">
 <link rel="icon" href="mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,6 +58,18 @@
     margin:20px 0 0; font-size:13.5px; color:var(--sub); line-height:1.9;
   }
   .freecolor strong{color:var(--fg); font-weight:500;}
+
+  /* ---- なぜ色なのか ---- */
+  .why{margin:58px 0 0; padding-top:40px; border-top:1px solid var(--line);}
+  .why h2{
+    font-size:13px; letter-spacing:.24em; color:var(--sub);
+    font-weight:500; margin:0 0 26px;
+  }
+  .why div{margin-bottom:26px;}
+  .why div:last-child{margin-bottom:0;}
+  .why b{display:block; font-size:16.5px; margin-bottom:6px;}
+  .why p{margin:0; font-size:14.5px; color:var(--sub); max-width:36em;}
+  .why strong{color:var(--fg); font-weight:500;}
 
   /* ---- OS切り替え ---- */
   .ostabs{display:flex; gap:10px; margin:56px 0 8px;}
@@ -157,17 +169,19 @@
         <tspan fill="#4d8dff">C</tspan><tspan fill="#4ade80">o</tspan><tspan fill="#a78bfa">l</tspan><tspan fill="#35d6e0">o</tspan><tspan fill="#4d8dff">r</tspan><tspan fill="#4ade80">C</tspan><tspan fill="#a78bfa">u</tspan><tspan fill="#35d6e0">e</tspan>
       </text>
     </svg>
-    <h1>色を上げると、<br>声が文字になる。</h1>
+    <h1>あなたが決めた色を<br>カメラに見せると、<br>AIに音声入力ができる。</h1>
     <p class="lead">
-      カメラが色の目印を見ています。<strong>自分で決めた色</strong>を上げると聞き始め、言い終わって「はい」と言うと、
-      いま開いているアプリにその文がそのまま入ります。キーボードには触りません。
-      Mac と Windows、どちらでも動きます。
+      キーボードの前に座らなくていい、というだけの道具です。
+      色を上げれば、パソコンが聞き始めます。話し終えて「はい」と言えば、その言葉が
+      AIの入力欄にそのまま入って、送られます。
+      画面をプロジェクターや大きなテレビに映せば、部屋を歩き回りながら、
+      相手と話すように考えをまとめていけます。
     </p>
 
     <div class="how">
-      <div><b><span class="sw" style="background:#4d8dff"></span>1つめの色を上げる</b><span>聞き始めます。一瞬でよく、上げっぱなしにする必要はありません。</span></div>
-      <div><b><span class="sw" style="background:#4ade80"></span>2つめの色を上げる</b><span>ポーズ。考えている間、勝手に送られません。</span></div>
-      <div><b>「はい」と言う</b><span>送信。黙ったままでも数秒で送られます。</span></div>
+      <div><b><span class="sw" style="background:#4d8dff"></span>1つめの色を上げる</b><span>ここから聞きます、の合図。一瞬かざすだけでよく、上げ続ける必要はありません。</span></div>
+      <div><b><span class="sw" style="background:#4ade80"></span>2つめの色を上げる</b><span>ちょっと待って、の合図。考えこんでも、勝手に送られません。</span></div>
+      <div><b>「はい」と言う</b><span>これで送ります。何も言わずに数秒黙っても、同じように送られます。</span></div>
     </div>
 
     <p class="freecolor">
@@ -175,6 +189,39 @@
       色は<strong>自分で決められます。</strong>青でも緑でも、紫でも水色でも構いません。
       避けるのは<strong>肌に近い色だけ</strong>（オレンジ・赤・ベージュ）。顔ごと拾ってしまい、動かなくなります。
     </p>
+
+    <section class="why">
+      <h2>なぜ、色なのか</h2>
+
+      <div>
+        <b>ひとりごとまで聞かれたくない。</b>
+        <p>「ねえ○○」と呼びかけて始めるタイプの道具は、その一言を聞き逃さないために、
+        <strong>ずっとマイクを開けたままにしています。</strong>電話の声も、家族との会話も、その間ずっと通り過ぎていきます。
+        ColorCue は、色を見せるまで何も聞きません。聞いている間は、画面のランプが緑に光ります。</p>
+      </div>
+
+      <div>
+        <b>合図があってから、動きはじめる。</b>
+        <p>呼びかけを待つ仕組みは、待っている間もずっと動き続けます。
+        ColorCue は<strong>合図を見てから動き出します。</strong>それまでは、ただカメラに色が映っているかを見ているだけです。
+        パソコンにも、バッテリーにも負担をかけません。</p>
+      </div>
+
+      <div>
+        <b>AIのAPIは使いません。</b>
+        <p>ColorCue は<strong>あなたのパソコンの中だけで動く小さなプログラム</strong>です。
+        どこかのサービスに登録して鍵をもらう、といったことは一切ありません。
+        （声を文字にする部分だけ、Chrome にもとから入っている機能を使います）</p>
+      </div>
+
+      <div>
+        <b>ノートパソコンがあれば、始められます。</b>
+        <p>カメラは最初から付いています。合図に使う色は、
+        <strong>ペンでも、付箋でも、マスキングテープでも構いません。</strong>
+        専用の機械やリモコンを買いそろえる必要はありません。</p>
+      </div>
+    </section>
+
   </header>
 
   <div class="ostabs">
@@ -191,10 +238,11 @@
   <div id="steps"></div>
 
   <div class="done-all" id="doneAll">
-    <h2>準備できました</h2>
+    <h2>これで使えます</h2>
     <p style="margin:0;color:var(--sub);font-size:14.5px">
-      使いたいアプリ（Claude、ChatGPT、メール、Word、何でも）を前面にして、入力欄をクリックしてから、
-      青を上げて話してください。ColorCue の画面は、隠れない場所に置いたままにしてください。
+      あとは、話したいアプリを手前に出して、入力欄をクリックしてから、色を上げて話すだけです。
+      パソコンの画面をテレビやプロジェクターに映すと、離れたところからでも使えます。
+      席に戻らなくていい、というのがこの道具のいちばんの取り柄です。
     </p>
   </div>
 
@@ -211,28 +259,33 @@ const ZIP = "https://github.com/hanamarufujii/colorcue/archive/refs/heads/main.z
 const STEPS = {
   mac: [
     {
-      t: "ColorCue をダウンロードする",
+      t: "ダウンロードする",
       html: `<a class="dl" href="${ZIP}">ColorCue をダウンロード</a>
-        <p>ダウンロードした zip をダブルクリックして展開します。出てきた <code>colorcue-main</code> というフォルダを、
-        書類フォルダなど分かりやすい場所に置いてください。</p>`
+        <p>青いボタンを押すと、zip ファイルが落ちてきます。それをダブルクリックすると
+        <code>colorcue-main</code> というフォルダが出てきます。書類フォルダなど、
+        あとで見つけられる場所に置いてください。</p>`
     },
     {
-      t: "起動する",
-      html: `<p>フォルダの中の <code>start.command</code> を<strong>右クリック → 「開く」</strong>で開きます。
-        （ダブルクリックだと「開発元を確認できません」と出て開けません。右クリックから開くと、確認のうえ開けます）</p>
-        <p>黒いウィンドウが出て「待ち受け中」と表示され、Chrome が自動で開けば成功です。
-        <strong>この黒いウィンドウは閉じないでください。</strong>閉じると止まります。</p>`
+      t: "はじめて動かす",
+      html: `<p>フォルダを開いて、中の <code>start.command</code> を<strong>右クリックして「開く」</strong>を選びます。</p>
+        <p class="note">ダブルクリックでは開けません。「開発元を確認できません」と出て止まります。
+        <strong>かならず右クリックから開いてください。</strong>一度開けば、次からはダブルクリックでも大丈夫です。</p>
+        <p>黒いウィンドウが出て、Chrome が勝手に開けば成功です。
+        <strong>この黒いウィンドウは閉じないでください。</strong>閉じると ColorCue も止まります。
+        使い終わるまで、置いたままにしておきます。</p>`
     },
     {
       t: "カメラとマイクを許可する",
-      html: `<p>開いたページの<strong>「カメラとマイクを開始」</strong>を押します。Chrome が許可を聞いてくるので、
-        <strong>両方とも「許可」</strong>を選んでください。</p>
-        <p>右側に自分の映像が出れば成功です。</p>`
+      html: `<p>開いたページの<strong>「カメラとマイクを開始」</strong>というボタンを押します。
+        Chrome が「カメラを使っていいですか」「マイクを使っていいですか」と聞いてくるので、
+        <strong>どちらも「許可」</strong>を押してください。</p>
+        <p>画面の右側に自分の顔が映れば、ここは終わりです。</p>`
     },
     {
-      t: "キーを送る許可を出す（ここが一番の関門）",
-      html: `<p>ColorCue は、聞き取った文を「貼り付けて Enter を押す」という形で他のアプリに渡します。
-        macOS では、そのために<strong>2つの許可</strong>が要ります。</p>
+      t: "キーボードを代わりに打つ許可を出す（ここが山場）",
+      html: `<p>ColorCue は、聞き取った文を<strong>あなたの代わりに貼り付けて、Enter を押します。</strong>
+        Mac は、勝手にキーを押されることを強く警戒するので、<strong>2か所で許可</strong>を出す必要があります。
+        ここだけ少し面倒です。ここさえ越えれば、あとは楽です。</p>
         <ol>
           <li><strong>アクセシビリティ</strong>：システム設定 → プライバシーとセキュリティ → アクセシビリティ →
               一覧の<strong>「ターミナル」をオン</strong>。無ければ左下の <code>+</code> から
@@ -240,74 +293,92 @@ const STEPS = {
           <li><strong>オートメーション</strong>：初めて送信したときに
               「"ターミナル" が "システムイベント" を制御することを許可しますか？」と出ます。<strong>「OK」</strong>を押します</li>
         </ol>
-        <p class="note">アクセシビリティをオンにしたら、<strong>ターミナルを ⌘Q で完全に終了して、もう一度 start.command から起動し直してください。</strong>
-        再起動しないと許可が効きません。ここでつまずく人がほとんどです。</p>`
+        <p class="note">オンにしただけでは効きません。<strong>黒いウィンドウ（ターミナル）を ⌘Q で完全に終了して、
+        もう一度 start.command から開き直してください。</strong>ここを飛ばすと「送れません」と出続けます。
+        つまずく人のほとんどが、ここです。</p>`
     },
     {
-      t: "色の目印を用意して登録する",
-      html: `<p><strong>青</strong>と<strong>緑</strong>、2つの目印を用意します。濃い色のペン、付箋、リストバンド、テープ、何でも構いません。</p>
-        <p class="note">肌の色に近いもの（オレンジ・ベージュ・赤）は<strong>絶対に避けてください。</strong>顔ごと認識してしまい、まったく動きません。</p>
-        <p>ページの<strong>「A を登録」</strong>を押してから、映像に映っている<strong>青いものをクリック</strong>。
-        同じように<strong>「B を登録」</strong>→ 緑をクリック。円が付けば成功です。</p>
-        <p>円が出ないときは、右側の<strong>「最低の面積」を小さく</strong>してみてください。細いものは拾いにくいです。</p>`
+      t: "合図に使う色を決める",
+      html: `<p>色のついたものを<strong>2つ</strong>用意してください。ペン、付箋、マスキングテープ、リストバンド、
+        なんでも構いません。<strong>1つめが「話しはじめる」、2つめが「ちょっと待って」</strong>の合図になります。</p>
+        <p class="note">肌に近い色（オレンジ・赤・ベージュ）は<strong>絶対に選ばないでください。</strong>
+        顔まで同じ色だと判断されて、まったく動かなくなります。青・緑・紫・水色あたりが確実です。</p>
+        <p>ページの<strong>「A を登録」</strong>を押してから、画面に映っている<strong>1つめの色をクリック</strong>します。
+        同じように<strong>「B を登録」</strong>→ 2つめの色をクリック。
+        映像の中でその色に<strong>丸が付いたら</strong>、覚えられた印です。</p>
+        <p>丸が出ないときは、右側の<strong>「最低の面積」のつまみを左に</strong>動かしてください。
+        細いペンなどは、小さすぎて見逃されていることがあります。</p>`
     },
     {
-      t: "使ってみる",
-      html: `<p>文字を入れたいアプリ（Claude、ChatGPT、メール、何でも）を<strong>前面</strong>にして、入力欄をクリックします。</p>
-        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。隠れるとカメラが止まります。
-        画面が2つあるなら、片方に置いておくのが確実です。</p>
-        <p>青を上げて、話して、「はい」と言う。文が入って送信されれば完成です。</p>`
+      t: "話してみる",
+      html: `<p>文字を入れたいアプリ（Claude、ChatGPT、メール、なんでも）を<strong>手前に出して、入力欄をクリック</strong>します。
+        カーソルが点滅している状態にしてください。</p>
+        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。
+        隠れるとカメラが止まります。少しでも見えていれば大丈夫です。</p>
+        <p><strong>1つめの色を上げて、話して、「はい」と言う。</strong>
+        文が入力欄に入って、そのまま送られたら完成です。</p>`
     }
   ],
 
   win: [
     {
-      t: "Python を入れる",
-      html: `<p>Windows には Python が入っていないので、先に入れます。</p>
+      t: "Python という土台を入れる",
+      html: `<p>ColorCue を動かすのに必要な土台が、Windows には最初から入っていません。先にそれを入れます。
+        無料です。5分ほどで終わります。</p>
         <ol>
           <li><a href="https://www.python.org/downloads/">python.org</a> を開いて、黄色い「Download Python」ボタンを押す</li>
           <li>ダウンロードしたファイルを実行</li>
           <li><strong>最初の画面で「Add python.exe to PATH」に必ずチェックを入れてから</strong>「Install Now」</li>
         </ol>
-        <p class="note">このチェックを忘れると、あとで起動できません。入れ忘れたら、もう一度インストーラを実行して直せます。</p>`
+        <p class="note">この<strong>チェックを忘れると、あとで動きません。</strong>
+        忘れてしまっても、もう一度同じファイルを実行すれば入れ直せます。</p>`
     },
     {
-      t: "ColorCue をダウンロードする",
+      t: "ダウンロードする",
       html: `<a class="dl" href="${ZIP}">ColorCue をダウンロード</a>
-        <p>ダウンロードした zip を右クリック →「すべて展開」。出てきた <code>colorcue-main</code> フォルダを、
-        ドキュメントなど分かりやすい場所に置いてください。</p>`
+        <p>青いボタンを押すと zip ファイルが落ちてきます。右クリックして<strong>「すべて展開」</strong>。
+        出てきた <code>colorcue-main</code> フォルダを、ドキュメントなど、あとで見つけられる場所に置いてください。</p>`
     },
     {
-      t: "起動する",
-      html: `<p>フォルダの中の <code>start.bat</code> をダブルクリックします。</p>
-        <p>「WindowsによってPCが保護されました」と出たら、<strong>「詳細情報」→「実行」</strong>を押してください。</p>
-        <p>黒いウィンドウが出て「待ち受け中」と表示され、ブラウザが開けば成功です。
-        <strong>この黒いウィンドウは閉じないでください。</strong></p>
-        <p class="note">ブラウザが Chrome 以外で開いたら、アドレスバーの <code>localhost:8777/index.html</code> を
-        コピーして、<strong>Chrome</strong> に貼り直してください。音声認識は Chrome でしか動きません。</p>`
+      t: "はじめて動かす",
+      html: `<p>フォルダを開いて、中の <code>start.bat</code> をダブルクリックします。</p>
+        <p class="note">「WindowsによってPCが保護されました」という青い画面が出たら、
+        <strong>「詳細情報」→「実行」</strong>の順に押してください。見慣れないプログラムには必ず出る警告です。</p>
+        <p>黒いウィンドウが出て、ブラウザが開けば成功です。
+        <strong>この黒いウィンドウは閉じないでください。</strong>閉じると ColorCue も止まります。</p>
+        <p class="note">開いたのが Chrome 以外だったら、アドレス欄の
+        <code>localhost:8777/index.html</code> をコピーして、<strong>Chrome に貼り直してください。</strong>
+        声を文字にする機能は Chrome にしかありません。</p>`
     },
     {
       t: "カメラとマイクを許可する",
-      html: `<p>Chrome で開いたページの<strong>「カメラとマイクを開始」</strong>を押します。
-        許可を聞かれたら<strong>両方とも「許可」</strong>。</p>
-        <p>右側に自分の映像が出れば成功です。</p>
-        <p class="note">Windows の設定でカメラ・マイクがブロックされていると出ません。その場合は
-        設定 → プライバシーとセキュリティ → カメラ／マイク で、アプリのアクセスをオンにしてください。</p>`
+      html: `<p>Chrome で開いたページの<strong>「カメラとマイクを開始」</strong>というボタンを押します。
+        聞かれたら<strong>どちらも「許可」</strong>。</p>
+        <p>画面の右側に自分の顔が映れば、ここは終わりです。</p>
+        <p class="note">何も映らないときは、Windows 側でカメラが止められています。
+        設定 → プライバシーとセキュリティ → カメラ（とマイク）を開いて、
+        <strong>アプリがカメラにアクセスできるようにしてください。</strong></p>`
     },
     {
-      t: "色の目印を用意して登録する",
-      html: `<p><strong>青</strong>と<strong>緑</strong>、2つの目印を用意します。濃い色のペン、付箋、リストバンド、テープ、何でも構いません。</p>
-        <p class="note">肌の色に近いもの（オレンジ・ベージュ・赤）は<strong>絶対に避けてください。</strong>顔ごと認識してしまい、まったく動きません。</p>
-        <p>ページの<strong>「A を登録」</strong>を押してから、映像に映っている<strong>青いものをクリック</strong>。
-        同じように<strong>「B を登録」</strong>→ 緑をクリック。円が付けば成功です。</p>
-        <p>円が出ないときは、右側の<strong>「最低の面積」を小さく</strong>してみてください。</p>`
+      t: "合図に使う色を決める",
+      html: `<p>色のついたものを<strong>2つ</strong>用意してください。ペン、付箋、マスキングテープ、リストバンド、
+        なんでも構いません。<strong>1つめが「話しはじめる」、2つめが「ちょっと待って」</strong>の合図になります。</p>
+        <p class="note">肌に近い色（オレンジ・赤・ベージュ）は<strong>絶対に選ばないでください。</strong>
+        顔まで同じ色だと判断されて、まったく動かなくなります。青・緑・紫・水色あたりが確実です。</p>
+        <p>ページの<strong>「A を登録」</strong>を押してから、画面に映っている<strong>1つめの色をクリック</strong>します。
+        同じように<strong>「B を登録」</strong>→ 2つめの色をクリック。
+        映像の中でその色に<strong>丸が付いたら</strong>、覚えられた印です。</p>
+        <p>丸が出ないときは、右側の<strong>「最低の面積」のつまみを左に</strong>動かしてください。</p>`
     },
     {
-      t: "使ってみる",
-      html: `<p>文字を入れたいアプリを<strong>前面</strong>にして、入力欄をクリックします。</p>
-        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。隠れるとカメラが止まります。</p>
-        <p>青を上げて、話して、「はい」と言う。文が入って送信されれば完成です。</p>
-        <p>Windows では特別な許可は要りません。Mac より簡単です。</p>`
+      t: "話してみる",
+      html: `<p>文字を入れたいアプリ（Claude、ChatGPT、メール、なんでも）を<strong>手前に出して、入力欄をクリック</strong>します。
+        カーソルが点滅している状態にしてください。</p>
+        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。
+        隠れるとカメラが止まります。</p>
+        <p><strong>1つめの色を上げて、話して、「はい」と言う。</strong>
+        文が入力欄に入って、そのまま送られたら完成です。</p>
+        <p>Windows は、Mac のような面倒な許可が要りません。ここまでで終わりです。</p>`
     }
   ]
 };
