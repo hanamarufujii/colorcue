@@ -53,6 +53,20 @@
   #count.hot  #countBar i{ background:var(--a); }
   #count.hold #countBar i{ background:var(--b); }
   #count.hold #countBar{ border-color:var(--b); }
+  /* 手ぶらモード中に流し続ける警告 */
+  #marquee{
+    display:none; overflow:hidden; white-space:nowrap;
+    border-top:1px solid #4a3a16; border-bottom:1px solid #4a3a16;
+    background:#1a1405; padding:10px 0; margin-bottom:2vh;
+  }
+  #marquee.on{display:block;}
+  #marquee span{
+    display:inline-block; white-space:nowrap;
+    color:#ffc14d; font-size:clamp(14px,1.5vw,20px); letter-spacing:.04em;
+    animation:flow 48s linear infinite;   /* 中身を2回繰り返し、半分ぶん動かして継ぎ目を消す */
+  }
+  @keyframes flow{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
   #pending{
     display:none; margin-top:2vh; padding:18px 22px;
     border:2px solid #ffb84d; border-radius:8px; color:#ffb84d;
@@ -102,6 +116,11 @@
   label.slider{display:block; margin-bottom:10px; color:var(--dim);}
   label.slider span{color:var(--fg);}
   input[type=range]{width:100%;}
+  input.txt{
+    width:100%; font:inherit; font-size:14px; margin-bottom:8px;
+    background:#101216; color:var(--fg); border:1px solid #333;
+    border-radius:6px; padding:9px 11px;
+  }
   #log{list-style:none; margin:0; padding:0;}
   #log li{border-bottom:1px solid var(--line); padding:8px 0; line-height:1.5;}
   #log time{display:block; color:var(--dim); font-size:11px; margin-bottom:2px;}
@@ -125,6 +144,7 @@
     <div id="count">
       <div id="countBar"><i></i></div>
     </div>
+    <div id="marquee"><span id="marqueeText"></span></div>
     <div id="interim"></div>
     <div id="final"></div>
     <div id="pending"></div>
@@ -156,6 +176,19 @@
     <label class="slider">挙手ラインの高さ <span id="vLine"></span><input type="range" id="sLine" min="10" max="90" value="45"></label>
     <label class="slider">くすみの下限 <span id="vSat"></span><input type="range" id="sSat" min="5" max="90" value="35"></label>
     <label class="slider">黙ってから送るまで <span id="vSil"></span><input type="range" id="sSil" min="1" max="8" value="3"></label>
+
+    <h2>送信の合図</h2>
+    <input type="text" id="endWords" class="txt" placeholder="はい、送信">
+    <p class="hint">この言葉を<b>文の最後に</b>言うと送ります。読点で区切って、いくつでも足せます。
+      文の途中に出てきたときは無視します。空にすると、黙ったときだけ送るようになります。</p>
+
+    <h2>手ぶらモード</h2>
+    <label class="hint" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <input type="checkbox" id="handsFree" style="width:18px;height:18px">
+      色を使わず、ずっと聞く
+    </label>
+    <p class="hint">声でも切り替えられます。<b>「手ぶらモードオン」「手ぶらモードオフ」</b>。
+      静かな場所で一人のときだけ使ってください。</p>
 
     <h2>記録</h2>
     <div class="row">
@@ -212,14 +245,19 @@ const elPending = document.getElementById('pending');
 const btnResend = document.getElementById('btnResend');
 const elCount   = document.getElementById('count');
 const elCountBar= document.querySelector('#countBar i');
+const elMarquee = document.getElementById('marquee');
+const elHF      = document.getElementById('handsFree');
 const dot = { A:document.getElementById('dotA'), B:document.getElementById('dotB') };
 const sw  = { A:document.getElementById('swA'),  B:document.getElementById('swB')  };
 
 /* ---------- 設定（localStorageに保存） ---------- */
-const DEFAULTS = { hue:18, minPx:60, line:45, sat:35, silence:3, A:null, B:null };
+const DEFAULTS = { hue:18, minPx:60, line:45, sat:35, silence:3, endWords:'はい、送信', A:null, B:null };
 let cfg = Object.assign({}, DEFAULTS);
 try { Object.assign(cfg, JSON.parse(localStorage.getItem('harimazaka-voice-ui') || '{}')); } catch(e){}
 const saveCfg = () => { try { localStorage.setItem('harimazaka-voice-ui', JSON.stringify(cfg)); } catch(e){} };
+
+// 文末の合図。入力欄の言葉から組み立てる。文中に出てきた場合は対象外。
+let END_WORD = null;
 
 /* ---------- 置換表（words.json・管理はClaude） ---------- */
 let words = { exact:{}, replace:{} };
@@ -274,6 +312,14 @@ const sliders = [
   ['sSat','vSat','sat', v => v + '%'],
   ['sSil','vSil','silence', v => v + '秒']
 ];
+const elEndWords = document.getElementById('endWords');
+elEndWords.value = cfg.endWords;
+buildEndWord();
+elEndWords.addEventListener('input', () => {
+  cfg.endWords = elEndWords.value;
+  saveCfg(); buildEndWord();
+});
+
 for (const [id, out, key, fmt] of sliders){
   const el = document.getElementById(id), label = document.getElementById(out);
   el.value = cfg[key];
@@ -390,6 +436,42 @@ function findBlob(data, target){
   if (n < cfg.minPx) return null;
   return { x: sx/n, y: sy/n, count: n };
 }
+
+/* ---------- 手ぶらモード ---------- */
+// 色を使わずに聞き続ける。切り忘れが危ないので、状態は保存しない（開くたびにオフ）。
+let handsFree = false;
+
+const HF_CMD = /^(手ぶら|てぶら|テブラ|手振ら|手ブラ)モード(オン|おん|on|off|オフ|おふ)$/i;
+
+const HF_WARN = [
+  '手ぶらモードは、ずっと聞いています',
+  '① 部屋の音が、その間ずっと Google に送られます',
+  '② 「はい」は相槌でも送信になります。人と話す場では使わないでください',
+  '③ 切り忘れると、席を立っても聞き続けます',
+  '④ カメラとマイクが動き続けるので、バッテリーを使います',
+  '⑤ 長時間つけっぱなしにしたときの安定性は、まだ確かめていません',
+  'ふだんは色で使うほうが安全です',
+].join('　／　') + '　／　';
+
+function setHandsFree(on, why){
+  if (handsFree === on) return;
+  handsFree = on;
+  elHF.checked = on;
+  elMarquee.classList.toggle('on', on);
+  document.getElementById('marqueeText').textContent = on ? HF_WARN.repeat(2) : '';
+
+  if (on){
+    beep(880, 0.07); setTimeout(() => beep(1180, 0.07), 110);
+    elMsg.textContent = '手ぶらモードです。色なしでずっと聞きます。切るときは「手ぶらモードオフ」。';
+    if (!wantSpeech) speechOn();
+  } else {
+    beep(300, 0.18);
+    elMsg.textContent = '手ぶらモードを切りました。';
+    if (wantSpeech) finalize('取消');
+  }
+}
+
+elHF.addEventListener('change', () => setHandsFree(elHF.checked, 'スイッチ'));
 
 /* ---------- 送信（最前面のアプリへ貼り付けて Return） ---------- */
 let sentCount = 0, lastSent = 0;
@@ -524,14 +606,23 @@ stage.addEventListener('click', ev => {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, wantSpeech = false, buffer = '', lastInterim = '';
 let silenceTimer = null;
-const END_WORD = /[\s、,]*(はい|ハイ|ハイッ|送信|そうしん|ソウシン)[\s。．、,.!！]*$/;   // 文末の合図。文中に出てきた場合は対象外
+function buildEndWord(){
+  const list = (cfg.endWords || '')
+    .split(/[、,\n\s]+/)
+    .map(w => w.trim())
+    .filter(Boolean)
+    .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  END_WORD = list.length
+    ? new RegExp('[\\s、,]*(' + list.join('|') + ')[\\s。．、,.!！]*$')
+    : null;
+}
 
 let silenceDeadline = 0;
 let paused = false;          // 緑で入るポーズ。青を上げるまで解けない
 
 function armSilence(){
   clearTimeout(silenceTimer);
-  if (paused){ silenceDeadline = 0; return; }   // ポーズ中は自動送信しない
+  if (paused || handsFree){ silenceDeadline = 0; return; }   // ポーズ中と手ぶらモードは自動送信しない
   silenceDeadline = Date.now() + cfg.silence * 1000;
   silenceTimer = setTimeout(() => finalize('無音'), cfg.silence * 1000);
 }
@@ -586,8 +677,20 @@ function initSpeech(){
     elFinal.textContent   = (buffer + interim);
 
     const whole = (buffer + interim).trim();
-    // 文末が「はい」なら即送信。ただし「はい」だけの発話では送らない
-    if (END_WORD.test(whole) && whole.replace(END_WORD, '').trim()){
+
+    // 「手ぶらモードオン／オフ」は送らずに切り替えるだけ
+    const cmd = whole.replace(/[\s、。．,.]/g, '');
+    const m = cmd.match(HF_CMD);
+    if (m){
+      const on = /オン|おん|on/i.test(m[2]);
+      buffer = ''; lastInterim = '';
+      elInterim.textContent = ''; elFinal.textContent = '';
+      clearTimeout(silenceTimer); silenceDeadline = 0;
+      setHandsFree(on, '声');
+      return;
+    }
+    // 文末が合図の言葉なら即送信。ただし合図だけの発話では送らない
+    if (END_WORD && END_WORD.test(whole) && whole.replace(END_WORD, '').trim()){
       finalize('はい');
       return;
     }
@@ -639,7 +742,7 @@ function finalize(why){
   // それでも確定していない分（暫定）は捨てずに足して送る。
   setTimeout(() => {
     let raw = (buffer + ' ' + lastInterim).replace(/\s+/g, ' ').trim();
-    if (why === 'はい') raw = raw.replace(END_WORD, '').trim();   // 合図の「はい」は送らない
+    if (why === 'はい' && END_WORD) raw = raw.replace(END_WORD, '').trim();   // 合図の言葉は送らない
     const text = fixWords(raw);
     elInterim.textContent = '';
     if (text){
@@ -650,6 +753,9 @@ function finalize(why){
       elMsg.textContent = '聞き取れませんでした。送っていません。';
     }
     buffer = ''; lastInterim = '';
+
+    // 手ぶらモードは、送ったあとも聞き続ける
+    if (handsFree && why !== '取消') setTimeout(() => { if (handsFree) speechOn(); }, 300);
   }, 400);
 }
 
