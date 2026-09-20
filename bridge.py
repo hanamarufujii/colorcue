@@ -3,8 +3,10 @@
 ColorCue — ローカルブリッジ
 
 ・このフォルダを http://localhost:8777 で配信する
-・POST /send {"text": "..."} … 最前面のアプリにその文を貼り付けて Enter
+・POST /send {"text": "...", "app": "アプリ名"} … そのアプリを手前に出して貼り付けて Enter
+                                              app を省くと、いま手前のアプリへ
 ・POST /return                … Enter だけ送る
+・GET  /apps                  … 起動中のアプリ名の一覧（送り先を選ぶため）
 
 macOS  : osascript（System Events）でキーを送る
 Windows: PowerShell の SendKeys でキーを送る
@@ -54,6 +56,38 @@ def press_return():
         raise RuntimeError("このOSには対応していません（macOS / Windows のみ）")
 
 
+def list_apps():
+    """画面に出ているアプリの名前を返す。"""
+    if IS_MAC:
+        script = ('tell application "System Events" to get name of every process '
+                  'whose background only is false')
+        r = subprocess.run(["osascript", "-e", script], capture_output=True, timeout=10)
+        names = r.stdout.decode("utf-8", "replace").strip()
+        return sorted({n.strip() for n in names.split(",") if n.strip()})
+    if IS_WIN:
+        script = ("Get-Process | Where-Object {$_.MainWindowTitle -ne ''} "
+                  "| Select-Object -ExpandProperty ProcessName")
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True, timeout=15,
+        )
+        names = r.stdout.decode("utf-8", "replace").splitlines()
+        return sorted({n.strip() for n in names if n.strip()})
+    return []
+
+
+def activate(app):
+    """指定したアプリを手前に出す。"""
+    if not app:
+        return
+    if IS_MAC:
+        _run(["osascript", "-e", f'tell application "{app}" to activate'])
+    elif IS_WIN:
+        _ps("Add-Type -AssemblyName Microsoft.VisualBasic; "
+            f"[Microsoft.VisualBasic.Interaction]::AppActivate('{app}')")
+    time.sleep(0.35)   # 手前に出てくるのを待つ
+
+
 def press_paste():
     if IS_MAC:
         _run(["osascript", "-e", AS_PASTE])
@@ -95,11 +129,12 @@ def clipboard_set(text):
                 pass
 
 
-def paste_and_return(text):
-    """最前面のアプリに text を貼り付けて Enter。クリップボードは元へ戻す。"""
+def paste_and_return(text, app=None):
+    """app（省略時は最前面）に text を貼り付けて Enter。クリップボードは元へ戻す。"""
     saved = clipboard_get()
     try:
         clipboard_set(text)
+        activate(app)
         time.sleep(0.05)
         press_paste()
         time.sleep(0.15)      # 貼り付けが反映されるのを待つ
@@ -121,17 +156,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404)
             return
 
-        text = ""
+        text, app = "", None
         if route == "/send":
             try:
                 n = int(self.headers.get("Content-Length") or 0)
-                text = (json.loads(self.rfile.read(n) or b"{}").get("text") or "").strip()
+                body = json.loads(self.rfile.read(n) or b"{}")
+                text = (body.get("text") or "").strip()
+                app = (body.get("app") or "").strip() or None
             except Exception:
-                text = ""
+                text, app = "", None
 
         try:
             if route == "/send" and text:
-                paste_and_return(text)
+                paste_and_return(text, app)
             else:
                 press_return()
             payload = {"ok": True}
@@ -149,6 +186,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if not payload["ok"]:
             print("送信に失敗:", payload["error"], file=sys.stderr, flush=True)
+
+    def do_GET(self):
+        if self.path.rstrip("/") == "/apps":
+            try:
+                payload = {"ok": True, "apps": list_apps()}
+            except Exception as e:
+                payload = {"ok": False, "error": str(e), "apps": []}
+            body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        super().do_GET()
 
     def log_message(self, *args):
         pass

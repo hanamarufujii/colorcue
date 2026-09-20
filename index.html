@@ -27,8 +27,18 @@
 
   /* ---- 発話表示（プロジェクター投映のメイン面） ---- */
   #speech{
-    display:flex; flex-direction:column; justify-content:center;
-    padding:5vh 5vw; min-width:0; gap:3vh;
+    display:flex; flex-direction:column;
+    padding:26px 5vw 5vh; min-width:0; gap:0; overflow:hidden;
+  }
+  #brandBtn{
+    background:none; border:0; padding:0; cursor:pointer;
+    align-self:flex-start; margin-bottom:20px; line-height:0;
+  }
+  #brand{ width:clamp(120px,13vw,168px); height:auto; opacity:.92; display:block; }
+  #brandBtn:hover #brand{opacity:1;}
+  #body{
+    flex:1; min-height:0; display:flex; flex-direction:column;
+    justify-content:center; gap:2.4vh; margin-top:3vh;
   }
   #interim{
     font-size:clamp(20px,3.2vw,52px); line-height:1.4; color:var(--dim);
@@ -38,7 +48,7 @@
     font-size:clamp(28px,5vw,88px); line-height:1.3; font-weight:700;
     word-break:break-word;
   }
-  #final:empty::before{content:"青を上げて話す"; color:#333; font-weight:400;}
+  #final:empty::before{content:"色A を上げて話す"; color:#333; font-weight:400;}
   #count{ display:none; align-items:center; gap:22px; margin-bottom:1vh; }
   #count.on{ display:flex; }
   #countBar{
@@ -74,35 +84,59 @@
   }
   /* 遠くから見て分かるように大きく出す */
   #state{
-    display:flex; align-items:flex-start; gap:clamp(24px,4vw,64px);
+    display:flex; align-items:flex-start; flex-wrap:wrap;
+    gap:clamp(14px,2.2vw,34px) clamp(16px,2.4vw,38px);
     color:var(--dim);
   }
   #state .lamp{
-    display:flex; flex-direction:column; align-items:center; gap:14px;
-    font-size:clamp(13px,1.1vw,17px); letter-spacing:.14em; white-space:nowrap;
+    display:flex; flex-direction:column; align-items:center; gap:11px;
+    font-size:clamp(11px,.95vw,14px); letter-spacing:.06em; white-space:nowrap;
+    background:none; border:0; padding:0; color:var(--dim);
+    font-family:inherit; cursor:pointer;
   }
+  #state .lamp:hover{color:var(--fg);}
+  #state .lamp:active .dot{transform:scale(.94);}
   .dot{
-    width:clamp(64px,7vw,110px); height:clamp(64px,7vw,110px);
-    border-radius:50%; background:#1e1e1e;
-    border:2px solid #2e2e2e; display:block;
-    transition:background .08s, box-shadow .08s;
+    width:clamp(52px,5.6vw,92px); height:clamp(52px,5.6vw,92px);
+    border-radius:50%; background:#1a1c1f;
+    border:2px solid #3b4048;
+    display:grid; place-items:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.5);
+    transition:background .08s, box-shadow .08s, transform .06s, border-color .12s;
   }
+  .dot svg{
+    width:42%; height:42%; fill:none;
+    stroke:#6f7681; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round;
+    transition:stroke .1s;
+  }
+  .lamp:hover .dot{border-color:#5a616c;}
+  .dot.on svg{stroke:#0e1013;}
   .dot.on{ box-shadow:0 0 46px currentColor, 0 0 90px currentColor; border-color:currentColor; }
   .dot.a{color:var(--a);} .dot.b{color:var(--b);}
   .dot.a.on{background:var(--a);} .dot.b.on{background:var(--b);}
   #micDot{color:#4ade80; background:#1e1e1e;}
   #micDot.on{background:#4ade80;}
-  #sent{font-size:clamp(20px,2.4vw,40px); color:var(--fg); letter-spacing:.06em;}
+  .dot.hf{color:#ff9c2e; cursor:pointer;}
+  .dot.hf.on{background:#ff9c2e;}
+  .dot.hf:hover{border-color:#ff9c2e;}
+  #sent{font-size:13px; color:var(--dim); letter-spacing:.06em;}
+  /* 動いていることが静かに分かるように、塗らずに線だけ緑 */
+  button.running{
+    background:transparent; color:#4ade80; border:1px solid #4ade80; font-weight:600;
+  }
+  button.running:hover{background:rgba(74,222,128,.08);}
   #fps{font-size:12px; color:#3a3a3a; align-self:flex-end;}
+  #dest{font-size:12.5px; color:var(--dim); align-self:flex-end; letter-spacing:.04em;}
 
   /* ---- サイドパネル ---- */
   #panel{
     background:var(--panel); border-left:1px solid var(--line);
-    padding:14px; overflow-y:auto; font-size:13px;
+    padding:12px 14px; overflow:hidden; font-size:12.5px;
+    display:flex; flex-direction:column; gap:2px;
   }
   #stageWrap{position:relative; margin-bottom:12px;}
-  canvas#stage{width:100%; display:block; background:#111; border-radius:6px; cursor:crosshair;}
-  h2{font-size:11px; letter-spacing:.14em; color:var(--dim); margin:18px 0 8px; font-weight:600;}
+  canvas#stage{width:100%; max-height:22vh; object-fit:cover; display:block; background:#111; border-radius:6px; cursor:crosshair;}
+  h2{font-size:10px; letter-spacing:.14em; color:var(--dim); margin:12px 0 6px; font-weight:600;}
   h2:first-child{margin-top:0;}
   button{
     font:inherit; background:#1c1c1c; color:var(--fg); border:1px solid #333;
@@ -111,9 +145,10 @@
   button:hover{background:#262626;}
   button.primary{background:#fff; color:#000; border-color:#fff; font-weight:600;}
   button.arm{outline:2px solid #fff;}
-  .row{display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+  .row{display:flex; gap:8px; align-items:center; margin-bottom:6px; flex-wrap:wrap;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:4px 14px;}
   .swatch{width:22px;height:22px;border-radius:4px;border:1px solid #444;flex:none;}
-  label.slider{display:block; margin-bottom:10px; color:var(--dim);}
+  label.slider{display:block; margin-bottom:4px; color:var(--dim); font-size:11.5px;}
   label.slider span{color:var(--fg);}
   input[type=range]{width:100%;}
   input.txt{
@@ -122,32 +157,105 @@
     border-radius:6px; padding:9px 11px;
   }
   #log{list-style:none; margin:0; padding:0;}
-  #log li{border-bottom:1px solid var(--line); padding:8px 0; line-height:1.5;}
+  #log{flex:1; overflow-y:auto; min-height:0;}
+  #log li{border-bottom:1px solid var(--line); padding:6px 0; line-height:1.5;}
   #log time{display:block; color:var(--dim); font-size:11px; margin-bottom:2px;}
   #msg{color:#ffb84d; line-height:1.6; margin-bottom:10px;}
   #msg:empty{display:none;}
   kbd{background:#222;border:1px solid #444;border-radius:4px;padding:1px 5px;font-size:11px;}
-  .hint{color:var(--dim); line-height:1.6;}
+  .hint{color:var(--dim); line-height:1.55; font-size:11.5px;}
+
+  /* ---- ロゴを押すと出る説明 ---- */
+  #about[hidden]{display:none;}
+  #about{
+    position:fixed; inset:0; z-index:50; display:grid; place-items:center;
+    background:rgba(0,0,0,.72); backdrop-filter:blur(3px); padding:24px;
+  }
+  /* 白地に黒文字。U-MAのロゴをそのままの色で出すため */
+  #about .sheet{
+    position:relative; width:min(560px,100%); max-height:86vh; overflow-y:auto;
+    background:#ffffff; color:#1a1917; border:1px solid #e3ded6; border-radius:14px;
+    padding:34px 36px 30px; line-height:1.9;
+  }
+  #about .close{
+    position:absolute; top:12px; right:12px; width:34px; height:34px;
+    border-radius:50%; background:transparent; border:1px solid #d8d2c9;
+    color:#8a847c; font-size:18px; line-height:1; cursor:pointer;
+  }
+  #about .close:hover{color:#1a1917; border-color:#9a948c;}
+  #about .mark{width:46px; height:46px; display:block; margin-bottom:14px;}
+  #about h3{margin:0 0 4px; font-size:22px; letter-spacing:.02em; color:#1a1917;}
+  #about h4{margin:22px 0 6px; font-size:12px; letter-spacing:.18em; color:#8a847c; font-weight:600;}
+  #about p{margin:0; font-size:14px; color:#4a4640;}
+  #about p.meta{font-size:12px; color:#8a847c;}
+  #about b{color:#1a1917;}
+  #about a{color:#1f5fd0;}
+  #about .uma{display:block; margin:10px 0 14px;}
+  #about .uma img{width:170px; height:auto; display:block;}
+  details.keys summary{color:var(--dim); cursor:pointer; font-size:11.5px; margin-top:8px;}
+  details.keys p{margin:6px 0 0;}
+  body{overflow:hidden;}
 </style>
 </head>
 <body>
 <div id="app">
 
   <main id="speech">
+    <button id="brandBtn" type="button" title="ColorCue について">
+    <svg id="brand" viewBox="0 0 300 64" role="img" aria-label="ColorCue">
+      <line x1="5" y1="39" x2="59" y2="39" stroke="#3c424c" stroke-width="2"
+            stroke-linecap="round" stroke-dasharray="4 5"/>
+      <circle cx="21" cy="19" r="15" fill="#4d8dff" opacity=".16"/>
+      <circle cx="21" cy="19" r="9"  fill="#4d8dff"/>
+      <circle cx="44" cy="27" r="12" fill="#4ade80" opacity=".16"/>
+      <circle cx="44" cy="27" r="7"  fill="#4ade80"/>
+      <circle cx="14" cy="52" r="3.4" fill="#35c4c4" opacity=".55"/>
+      <circle cx="27" cy="52" r="3.4" fill="#6b7fd7" opacity=".55"/>
+      <circle cx="40" cy="52" r="3.4" fill="#8b7ff0" opacity=".55"/>
+      <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
+      <text x="76" y="41" font-family="-apple-system,'Helvetica Neue',Arial,sans-serif"
+            font-size="32" font-weight="700" letter-spacing="-3.5">
+        <tspan fill="#4d8dff">C</tspan><tspan fill="#4ade80">o</tspan><tspan fill="#a78bfa">l</tspan><tspan fill="#35d6e0">o</tspan><tspan fill="#4d8dff">r</tspan><tspan fill="#4ade80">C</tspan><tspan fill="#a78bfa">u</tspan><tspan fill="#35d6e0">e</tspan>
+      </text>
+    </svg>
+    </button>
     <div id="state">
-      <span class="lamp"><span class="dot a" id="dotA"></span>青を上げた</span>
-      <span class="lamp"><span class="dot" id="micDot"></span>聞いている</span>
-      <span class="lamp"><span class="dot b" id="dotB"></span>緑でポーズ</span>
-      <span class="lamp"><span id="sent">送信 0</span>　</span>
+      <button class="lamp" id="btnA" type="button" title="押すと聞き始めます（色A を上げるのと同じ）">
+        <span class="dot a" id="dotA">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M12 5l-5 5M12 5l5 5"/></svg>
+        </span>聞き始める
+      </button>
+
+      <button class="lamp" id="btnMic" type="button" title="押すといま送ります（「はい」と同じ）">
+        <span class="dot" id="micDot">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 8"/></svg>
+        </span>送る
+      </button>
+
+      <button class="lamp" id="btnB" type="button" title="押すとポーズ／もう一度で解除">
+        <span class="dot b" id="dotB">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+        </span>ポーズ
+      </button>
+
+      <button class="lamp" id="btnHF" type="button" title="押すと手ぶらモードを切り替えます">
+        <span class="dot hf" id="dotHF">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v8M8.5 6.5a5 5 0 1 0 7 0"/></svg>
+        </span>手ぶら
+      </button>
+
+      <span id="dest"></span>
       <span id="fps"></span>
     </div>
-    <div id="count">
-      <div id="countBar"><i></i></div>
+    <div id="body">
+      <div id="count">
+        <div id="countBar"><i></i></div>
+      </div>
+      <div id="marquee"><span id="marqueeText"></span></div>
+      <div id="interim"></div>
+      <div id="final"></div>
+      <div id="pending"></div>
     </div>
-    <div id="marquee"><span id="marqueeText"></span></div>
-    <div id="interim"></div>
-    <div id="final"></div>
-    <div id="pending"></div>
   </main>
 
   <aside id="panel">
@@ -157,8 +265,9 @@
       <canvas id="stage" width="640" height="480"></canvas>
     </div>
 
-    <div class="row">
+    <div class="row" style="margin-top:8px">
       <button id="btnStart" class="primary">カメラとマイクを開始</button>
+      <span id="sent">送信 0</span>
     </div>
 
     <h2>色の登録（キャリブレーション）</h2>
@@ -168,27 +277,27 @@
       <button id="calB">B を登録</button>
       <div class="swatch" id="swB"></div>
     </div>
-    <p class="hint">ボタンを押してから、映像の中のその色を<b>クリック</b>します。手袋が無くても、付箋やマグカップなど色のはっきりしたもので試せます。</p>
+    <p class="hint">ボタンを押してから、映像の中のその色を<b>クリック</b>。肌に近い色は避けてください。</p>
 
     <h2>調整</h2>
-    <label class="slider">色の許容範囲 <span id="vHue"></span><input type="range" id="sHue" min="4" max="60" value="18"></label>
-    <label class="slider">最低の面積 <span id="vMin"></span><input type="range" id="sMin" min="10" max="600" value="60"></label>
-    <label class="slider">挙手ラインの高さ <span id="vLine"></span><input type="range" id="sLine" min="10" max="90" value="45"></label>
-    <label class="slider">くすみの下限 <span id="vSat"></span><input type="range" id="sSat" min="5" max="90" value="35"></label>
-    <label class="slider">黙ってから送るまで <span id="vSil"></span><input type="range" id="sSil" min="1" max="8" value="3"></label>
+    <div class="grid2">
+      <label class="slider">色の許容範囲 <span id="vHue"></span><input type="range" id="sHue" min="4" max="60" value="18"></label>
+      <label class="slider">最低の面積 <span id="vMin"></span><input type="range" id="sMin" min="10" max="600" value="60"></label>
+      <label class="slider">挙手ラインの高さ <span id="vLine"></span><input type="range" id="sLine" min="10" max="90" value="45"></label>
+      <label class="slider">くすみの下限 <span id="vSat"></span><input type="range" id="sSat" min="5" max="90" value="35"></label>
+      <label class="slider">黙ってから送るまで <span id="vSil"></span><input type="range" id="sSil" min="1" max="8" value="3"></label>
+    </div>
+
+    <h2>送り先</h2>
+    <div class="row">
+      <select id="target" class="txt" style="margin-bottom:0"><option value="">いま手前にあるアプリ</option></select>
+      <button id="btnApps" title="一覧を取り直す">↻</button>
+    </div>
+    <p class="hint">選んでおくと、<b>そのアプリを手前に出してから</b>送ります。何を触っていても必ずそこへ入ります。</p>
 
     <h2>送信の合図</h2>
     <input type="text" id="endWords" class="txt" placeholder="はい、送信">
-    <p class="hint">この言葉を<b>文の最後に</b>言うと送ります。読点で区切って、いくつでも足せます。
-      文の途中に出てきたときは無視します。空にすると、黙ったときだけ送るようになります。</p>
-
-    <h2>手ぶらモード</h2>
-    <label class="hint" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <input type="checkbox" id="handsFree" style="width:18px;height:18px">
-      色を使わず、ずっと聞く
-    </label>
-    <p class="hint">声でも切り替えられます。<b>「手ぶらモードオン」「手ぶらモードオフ」</b>。
-      静かな場所で一人のときだけ使ってください。</p>
+    <p class="hint">この言葉を<b>文の最後に</b>言うと送ります。読点区切りでいくつでも。空にすると無効。</p>
 
     <h2>記録</h2>
     <div class="row">
@@ -198,15 +307,58 @@
     </div>
     <ul id="log"></ul>
 
-    <h2>キー操作</h2>
-    <p class="hint">
-      <kbd>space</kbd> 押している間だけ青を上げたのと同じ（テスト用）<br>
-      <kbd>R</kbd> 未送信の文をもう一度送る（緑は「タイマー停止」に変更）<br>
-      <kbd>H</kbd> このパネルを隠す／出す<br>
-      <kbd>F</kbd> 全画面
-    </p>
+    <details class="keys">
+      <summary>キー操作</summary>
+      <p class="hint">
+        <kbd>space</kbd> 押している間だけ色A を上げたのと同じ<br>
+        <kbd>R</kbd> 未送信をもう一度送る　<kbd>H</kbd> パネルの開閉　<kbd>F</kbd> 全画面
+      </p>
+    </details>
   </aside>
 
+</div>
+
+<div id="about" hidden>
+  <div class="sheet">
+    <button class="close" id="aboutClose" aria-label="閉じる">×</button>
+
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <line x1="5" y1="39" x2="59" y2="39" stroke="#c9c3ba" stroke-width="2"
+            stroke-linecap="round" stroke-dasharray="4 5"/>
+      <circle cx="21" cy="19" r="15" fill="#4d8dff" opacity=".16"/>
+      <circle cx="21" cy="19" r="9"  fill="#4d8dff"/>
+      <circle cx="44" cy="27" r="12" fill="#4ade80" opacity=".16"/>
+      <circle cx="44" cy="27" r="7"  fill="#4ade80"/>
+      <circle cx="14" cy="52" r="3.4" fill="#35c4c4" opacity=".55"/>
+      <circle cx="27" cy="52" r="3.4" fill="#6b7fd7" opacity=".55"/>
+      <circle cx="40" cy="52" r="3.4" fill="#8b7ff0" opacity=".55"/>
+      <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
+    </svg>
+
+    <h3>ColorCue</h3>
+    <p class="meta">バージョン 0.1　／　最終更新 2026年9月20日</p>
+
+    <h4>なぜ作ったか</h4>
+    <p>キーボードの前に座っていないと、AIと話せない。それが不便だったので作りました。
+      壁に画面を映して、部屋を歩きながら考えをまとめたい。でも手は空けておきたい。
+      その二つを同時に満たす方法が、色でした。</p>
+
+    <h4>なぜ色なのか</h4>
+    <p>呼びかけで始める仕組みにすると、その一言を待つためにマイクを開けたままにしなければなりません。
+      独り言も、電話も、打ち合わせも、ずっと拾われます。
+      色を合図にすれば、<b>見せたときだけ聞く</b>ようにできます。</p>
+
+    <h4>知っておいてほしいこと</h4>
+    <p>声を文字にする部分は Chrome の機能を使っているので、<b>聞いている間の音声は Google のサーバーを通ります。</b>
+      手ぶらモードの間は、それがずっと続きます。人のいる場所では切ってください。</p>
+
+    <h4>作った人</h4>
+    <a class="uma" href="https://u-ma.jp/" target="_blank" rel="noopener">
+      <img src="uma-logo.png" alt="U-MA Inc." width="600" height="232">
+    </a>
+    <p class="meta">U-MA Inc.　<a href="https://github.com/hanamarufujii/colorcue" target="_blank" rel="noopener">GitHub</a>　
+      <a href="https://hanamarufujii.github.io/colorcue/" target="_blank" rel="noopener">セットアップ</a></p>
+  </div>
 </div>
 
 <video id="cam" autoplay playsinline muted style="display:none"></video>
@@ -217,8 +369,8 @@
 /* =========================================================
    播磨坂スタジオ 音声駆動UI v1
    - MacBook内蔵カメラのカラートラッキングで色の上下を検知
-   - A（青）を上げている間だけマイクが開く（上げていないときは何も聞かない）
-   - A（青）を下げたら、聞き取った文をブリッジへ渡す。
+   - 色A を上げると聞き始める（上げていないときは何も聞かない）
+   - 合図の言葉か無音で、聞き取った文をブリッジへ渡す。
      ブリッジが最前面のアプリに貼り付けて Return を押す
    - macOS の音声コントロールは使わない（常時集音を避けるため）
    ========================================================= */
@@ -246,12 +398,12 @@ const btnResend = document.getElementById('btnResend');
 const elCount   = document.getElementById('count');
 const elCountBar= document.querySelector('#countBar i');
 const elMarquee = document.getElementById('marquee');
-const elHF      = document.getElementById('handsFree');
+const elHF      = document.getElementById('dotHF');
 const dot = { A:document.getElementById('dotA'), B:document.getElementById('dotB') };
 const sw  = { A:document.getElementById('swA'),  B:document.getElementById('swB')  };
 
 /* ---------- 設定（localStorageに保存） ---------- */
-const DEFAULTS = { hue:18, minPx:60, line:45, sat:35, silence:3, endWords:'はい、送信', A:null, B:null };
+const DEFAULTS = { hue:18, minPx:60, line:45, sat:35, silence:3, endWords:'はい、送信', target:'', A:null, B:null };
 let cfg = Object.assign({}, DEFAULTS);
 try { Object.assign(cfg, JSON.parse(localStorage.getItem('harimazaka-voice-ui') || '{}')); } catch(e){}
 const saveCfg = () => { try { localStorage.setItem('harimazaka-voice-ui', JSON.stringify(cfg)); } catch(e){} };
@@ -312,6 +464,35 @@ const sliders = [
   ['sSat','vSat','sat', v => v + '%'],
   ['sSil','vSil','silence', v => v + '秒']
 ];
+// 送り先アプリ
+const elTarget = document.getElementById('target');
+
+async function loadApps(){
+  try {
+    const r = await fetch('/apps', { cache:'no-store' });
+    const j = await r.json();
+    const cur = cfg.target || '';
+    elTarget.innerHTML = '<option value="">いま手前にあるアプリ</option>';
+    (j.apps || []).forEach(name => {
+      const o = document.createElement('option');
+      o.value = name; o.textContent = name;
+      if (name === cur) o.selected = true;
+      elTarget.appendChild(o);
+    });
+    if (cur && !(j.apps || []).includes(cur)){
+      const o = document.createElement('option');
+      o.value = cur; o.textContent = cur + '（いま起動していません）';
+      o.selected = true; elTarget.appendChild(o);
+    }
+  } catch(e){ /* ブリッジ未起動のときは黙って諦める */ }
+}
+elTarget.addEventListener('change', () => {
+  cfg.target = elTarget.value; saveCfg();
+  elMsg.textContent = cfg.target ? ('送り先：' + cfg.target) : '送り先：いま手前にあるアプリ';
+});
+document.getElementById('btnApps').addEventListener('click', loadApps);
+loadApps();
+
 const elEndWords = document.getElementById('endWords');
 elEndWords.value = cfg.endWords;
 buildEndWord();
@@ -345,6 +526,7 @@ async function start(){
     running = true;
     document.getElementById('btnStart').textContent = '動作中';
     document.getElementById('btnStart').classList.remove('primary');
+    document.getElementById('btnStart').classList.add('running');
     // requestAnimationFrame はウインドウが隠れると止まる。
     // Claude Code を前面に置いたまま使うので setInterval で回す。
     if (timer) clearInterval(timer);
@@ -413,6 +595,7 @@ function loop(){
   }
 
   drawCountdown();
+  drawDest();
 
   frames++;
   const now = performance.now();
@@ -440,6 +623,18 @@ function findBlob(data, target){
 /* ---------- 手ぶらモード ---------- */
 // 色を使わずに聞き続ける。切り忘れが危ないので、状態は保存しない（開くたびにオフ）。
 let handsFree = false;
+let hfIdleTimer = null;
+const HF_IDLE_MS = 3 * 60 * 1000;   // 3分なにも聞こえなければ自動で解除
+
+function armHandsFreeIdle(){
+  clearTimeout(hfIdleTimer);
+  if (!handsFree) return;
+  hfIdleTimer = setTimeout(() => {
+    if (!handsFree) return;
+    setHandsFree(false, '3分無言');
+    elMsg.textContent = '3分なにも聞こえなかったので、手ぶらモードを自動で切りました。';
+  }, HF_IDLE_MS);
+}
 
 const HF_CMD = /^(手ぶら|てぶら|テブラ|手振ら|手ブラ)モード(オン|おん|on|off|オフ|おふ)$/i;
 
@@ -456,22 +651,52 @@ const HF_WARN = [
 function setHandsFree(on, why){
   if (handsFree === on) return;
   handsFree = on;
-  elHF.checked = on;
+  elHF.classList.toggle('on', on);
   elMarquee.classList.toggle('on', on);
   document.getElementById('marqueeText').textContent = on ? HF_WARN.repeat(2) : '';
 
   if (on){
+    armHandsFreeIdle();
     beep(880, 0.07); setTimeout(() => beep(1180, 0.07), 110);
     elMsg.textContent = '手ぶらモードです。色なしでずっと聞きます。切るときは「手ぶらモードオフ」。';
     if (!wantSpeech) speechOn();
   } else {
+    clearTimeout(hfIdleTimer);
     beep(300, 0.18);
     elMsg.textContent = '手ぶらモードを切りました。';
     if (wantSpeech) finalize('取消');
   }
 }
 
-elHF.addEventListener('change', () => setHandsFree(elHF.checked, 'スイッチ'));
+// ロゴを押すと説明が出る
+const elAbout = document.getElementById('about');
+document.getElementById('brandBtn').addEventListener('click', () => { elAbout.hidden = false; });
+document.getElementById('aboutClose').addEventListener('click', () => { elAbout.hidden = true; });
+elAbout.addEventListener('click', ev => { if (ev.target === elAbout) elAbout.hidden = true; });
+
+document.getElementById('btnHF').addEventListener('click', () => setHandsFree(!handsFree, 'ボタン'));
+
+document.getElementById('btnA').addEventListener('click', () => {
+  if (!running){ elMsg.textContent = '先に「カメラとマイクを開始」を押してください。'; return; }
+  if (wantSpeech){ if (paused){ paused = false; } armSilence(); }
+  else speechOn();
+});
+
+document.getElementById('btnB').addEventListener('click', () => {
+  if (!wantSpeech){ elMsg.textContent = 'まだ聞いていません。先に色A を上げるか、左のボタンを押してください。'; return; }
+  if (paused){
+    paused = false; armSilence();
+    elMsg.textContent = '';
+  } else {
+    paused = true; clearTimeout(silenceTimer); silenceDeadline = 0;
+    elMsg.textContent = 'ポーズ中。送るときは合図の言葉、戻すときは色A。';
+  }
+});
+
+document.getElementById('btnMic').addEventListener('click', () => {
+  if (!wantSpeech){ elMsg.textContent = 'まだ聞いていません。'; return; }
+  finalize('はい');
+});
 
 /* ---------- 送信（最前面のアプリへ貼り付けて Return） ---------- */
 let sentCount = 0, lastSent = 0;
@@ -507,7 +732,7 @@ async function sendText(text){
     const res = await fetch('/send', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, app: cfg.target || '' })
     });
     const out = await res.json();
     if (out.ok){
@@ -549,7 +774,7 @@ function beep(freq, dur){
 function setRaised(k, up){
   channels[k].raised = up;
   dot[k].classList.toggle('on', up);
-  // 青を上げたら聞き始める。すでに聞いていればポーズを解いてカウント再開
+  // 色A を上げたら聞き始める。すでに聞いていればポーズを解いてカウント再開
   if (k === 'A' && up){
     if (wantSpeech){
       if (paused){ paused = false; elMsg.textContent = ''; }
@@ -559,12 +784,12 @@ function setRaised(k, up){
     }
   }
 
-  // 緑を上げたらポーズ。下げても何も起きない（青を上げるまで解けない）
+  // 色B を上げたらポーズ。下げても何も起きない（色A を上げるまで解けない）
   if (k === 'B' && up && wantSpeech){
     paused = true;
     clearTimeout(silenceTimer);
     silenceDeadline = 0;
-    elMsg.textContent = 'ポーズ中。送るときは「はい」、カウントを戻すときは青を上げてください。';
+    elMsg.textContent = 'ポーズ中。送るときは合図の言葉、カウントを戻すときは色A を上げてください。';
   }
 
 }
@@ -618,7 +843,7 @@ function buildEndWord(){
 }
 
 let silenceDeadline = 0;
-let paused = false;          // 緑で入るポーズ。青を上げるまで解けない
+let paused = false;          // 色B で入るポーズ。色A を上げるまで解けない
 
 function armSilence(){
   clearTimeout(silenceTimer);
@@ -628,6 +853,11 @@ function armSilence(){
 }
 
 // 送信までの残り時間を出す（毎フレーム loop から呼ばれる）
+function drawDest(){
+  const d = document.getElementById('dest');
+  d.textContent = cfg.target ? ('→ ' + cfg.target) : '→ 手前のアプリ';
+}
+
 function drawCountdown(){
   if (!wantSpeech){
     elCount.classList.remove('on','warn','hot','hold');
@@ -673,6 +903,7 @@ function initSpeech(){
       else interim += t;
     }
     lastInterim = interim;
+    if (handsFree) armHandsFreeIdle();
     elInterim.textContent = interim;
     elFinal.textContent   = (buffer + interim);
 
@@ -811,6 +1042,7 @@ addEventListener('keydown', ev => {
   if (ev.code === 'Space' && !spaceDown && !ev.repeat){
     spaceDown = true; ev.preventDefault(); setRaised('A', true);
   }
+  if (ev.key === 'Escape') elAbout.hidden = true;
   if (ev.key === 'r' || ev.key === 'R') resend();
   if (ev.key === 'h' || ev.key === 'H') document.body.classList.toggle('hidePanel');
   if (ev.key === 'f' || ev.key === 'F'){
