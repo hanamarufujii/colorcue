@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="ColorCue">
+  <title>ColorCue</title>
+  <style>
+    .wordmark{ fill:#15171a; }
+    @media (prefers-color-scheme: dark){ .wordmark{ fill:#f2f1ee; } }
+  </style>
+
+  <g>
+    <line x1="5" y1="39" x2="59" y2="39" stroke="#3c424c" stroke-width="2"
+          stroke-linecap="round" stroke-dasharray="4 5"/>
+    <circle cx="21" cy="19" r="15" fill="#4d8dff" opacity=".16"/>
+    <circle cx="21" cy="19" r="9"  fill="#4d8dff"/>
+    <circle cx="44" cy="27" r="12" fill="#4ade80" opacity=".16"/>
+    <circle cx="44" cy="27" r="7"  fill="#4ade80"/>
+    <circle cx="14" cy="52" r="3.4" fill="#35c4c4" opacity=".55"/>
+    <circle cx="27" cy="52" r="3.4" fill="#6b7fd7" opacity=".55"/>
+    <circle cx="40" cy="52" r="3.4" fill="#8b7ff0" opacity=".55"/>
+    <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
+  </g>
+
+  <text x="78" y="41"
+        font-family="'Helvetica Neue', Helvetica, Arial, 'Hiragino Sans', sans-serif"
+        font-size="30" font-weight="700" letter-spacing="-0.4"
+        class="wordmark">ColorCue</text>
+</svg>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ColorCue — セットアップ</title>
 <meta name="description" content="色を合図に、声で文字を入力する。ColorCue のセットアップ手順。">
+<link rel="icon" href="mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -31,12 +32,8 @@
   /* ---- 見出し ---- */
   header{padding:76px 0 40px;}
   .logo{
-    display:inline-flex; align-items:center; gap:12px;
-    font-size:13px; letter-spacing:.3em; color:var(--sub); margin-bottom:26px;
-  }
-  .logo i{
-    width:14px; height:14px; border-radius:50%; background:var(--blue);
-    box-shadow:0 0 14px var(--blue); display:block;
+    display:block; width:262px; height:auto; margin-bottom:30px;
+    color:var(--fg);
   }
   h1{
     font-size:clamp(34px,6vw,58px); font-weight:700; line-height:1.25;
@@ -139,7 +136,20 @@
 <div class="wrap">
 
   <header>
-    <div class="logo"><i></i>COLORCUE</div>
+    <svg class="logo" viewBox="0 0 300 64" role="img" aria-label="ColorCue">
+      <line x1="5" y1="39" x2="59" y2="39" stroke="#3c424c" stroke-width="2"
+            stroke-linecap="round" stroke-dasharray="4 5"/>
+      <circle cx="21" cy="19" r="15" fill="#4d8dff" opacity=".16"/>
+      <circle cx="21" cy="19" r="9"  fill="#4d8dff"/>
+      <circle cx="44" cy="27" r="12" fill="#4ade80" opacity=".16"/>
+      <circle cx="44" cy="27" r="7"  fill="#4ade80"/>
+      <circle cx="14" cy="52" r="3.4" fill="#35c4c4" opacity=".55"/>
+      <circle cx="27" cy="52" r="3.4" fill="#6b7fd7" opacity=".55"/>
+      <circle cx="40" cy="52" r="3.4" fill="#8b7ff0" opacity=".55"/>
+      <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
+      <text x="78" y="41" font-family="'Zen Kaku Gothic New','Helvetica Neue',Arial,sans-serif"
+            font-size="30" font-weight="700" letter-spacing="-0.4" fill="currentColor">ColorCue</text>
+    </svg>
     <h1>色を上げると、<br>声が文字になる。</h1>
     <p class="lead">
       カメラが色の目印を見ています。青を上げると聞き始め、言い終わって「はい」と言うと、
