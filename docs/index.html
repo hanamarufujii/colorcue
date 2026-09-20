@@ -40,6 +40,7 @@
     letter-spacing:-.01em; margin:0 0 22px;
   }
   .lead{font-size:clamp(15px,1.6vw,18px); color:var(--sub); max-width:34em; margin:0;}
+  .lead strong{color:var(--fg); font-weight:500;}
 
   /* ---- 仕組みの3行 ---- */
   .how{
@@ -53,6 +54,10 @@
   .how b{display:block; font-size:14px; margin-bottom:6px;}
   .how span{font-size:13px; color:var(--sub); line-height:1.7;}
   .sw{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:1px;}
+  .freecolor{
+    margin:20px 0 0; font-size:13.5px; color:var(--sub); line-height:1.9;
+  }
+  .freecolor strong{color:var(--fg); font-weight:500;}
 
   /* ---- OS切り替え ---- */
   .ostabs{display:flex; gap:10px; margin:56px 0 8px;}
@@ -147,21 +152,29 @@
       <circle cx="27" cy="52" r="3.4" fill="#6b7fd7" opacity=".55"/>
       <circle cx="40" cy="52" r="3.4" fill="#8b7ff0" opacity=".55"/>
       <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
-      <text x="78" y="41" font-family="'Zen Kaku Gothic New','Helvetica Neue',Arial,sans-serif"
-            font-size="30" font-weight="700" letter-spacing="-0.4" fill="currentColor">ColorCue</text>
+      <text x="76" y="41" font-family="'Zen Kaku Gothic New','Helvetica Neue',Arial,sans-serif"
+            font-size="32" font-weight="700" letter-spacing="-3.5">
+        <tspan fill="#4d8dff">C</tspan><tspan fill="#4ade80">o</tspan><tspan fill="#a78bfa">l</tspan><tspan fill="#35d6e0">o</tspan><tspan fill="#4d8dff">r</tspan><tspan fill="#4ade80">C</tspan><tspan fill="#a78bfa">u</tspan><tspan fill="#35d6e0">e</tspan>
+      </text>
     </svg>
     <h1>色を上げると、<br>声が文字になる。</h1>
     <p class="lead">
-      カメラが色の目印を見ています。青を上げると聞き始め、言い終わって「はい」と言うと、
+      カメラが色の目印を見ています。<strong>自分で決めた色</strong>を上げると聞き始め、言い終わって「はい」と言うと、
       いま開いているアプリにその文がそのまま入ります。キーボードには触りません。
       Mac と Windows、どちらでも動きます。
     </p>
 
     <div class="how">
-      <div><b><span class="sw" style="background:#4d8dff"></span>青を上げる</b><span>聞き始めます。一瞬でよく、上げっぱなしにする必要はありません。</span></div>
-      <div><b><span class="sw" style="background:#4ade80"></span>緑を上げる</b><span>ポーズ。考えている間、勝手に送られません。</span></div>
+      <div><b><span class="sw" style="background:#4d8dff"></span>1つめの色を上げる</b><span>聞き始めます。一瞬でよく、上げっぱなしにする必要はありません。</span></div>
+      <div><b><span class="sw" style="background:#4ade80"></span>2つめの色を上げる</b><span>ポーズ。考えている間、勝手に送られません。</span></div>
       <div><b>「はい」と言う</b><span>送信。黙ったままでも数秒で送られます。</span></div>
     </div>
+
+    <p class="freecolor">
+      <span class="sw" style="background:#4d8dff"></span><span class="sw" style="background:#4ade80"></span><span class="sw" style="background:#a78bfa"></span><span class="sw" style="background:#35d6e0"></span>
+      色は<strong>自分で決められます。</strong>青でも緑でも、紫でも水色でも構いません。
+      避けるのは<strong>肌に近い色だけ</strong>（オレンジ・赤・ベージュ）。顔ごと拾ってしまい、動かなくなります。
+    </p>
   </header>
 
   <div class="ostabs">

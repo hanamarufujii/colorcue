@@ -1,9 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="ColorCue">
   <title>ColorCue</title>
-  <style>
-    .wordmark{ fill:#15171a; }
-    @media (prefers-color-scheme: dark){ .wordmark{ fill:#f2f1ee; } }
-  </style>
 
   <g>
     <line x1="5" y1="39" x2="59" y2="39" stroke="#3c424c" stroke-width="2"
@@ -18,8 +14,9 @@
     <circle cx="53" cy="52" r="3.4" fill="#4aa3ff" opacity=".55"/>
   </g>
 
-  <text x="78" y="41"
+  <text x="76" y="41"
         font-family="'Helvetica Neue', Helvetica, Arial, 'Hiragino Sans', sans-serif"
-        font-size="30" font-weight="700" letter-spacing="-0.4"
-        class="wordmark">ColorCue</text>
+        font-size="32" font-weight="700" letter-spacing="-3.5">
+    <tspan fill="#4d8dff">C</tspan><tspan fill="#4ade80">o</tspan><tspan fill="#a78bfa">l</tspan><tspan fill="#35d6e0">o</tspan><tspan fill="#4d8dff">r</tspan><tspan fill="#4ade80">C</tspan><tspan fill="#a78bfa">u</tspan><tspan fill="#35d6e0">e</tspan>
+  </text>
 </svg>
