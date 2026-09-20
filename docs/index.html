@@ -76,6 +76,10 @@
     background:var(--panel); border:1px solid var(--line); border-radius:10px;
     padding:20px 18px;
   }
+  .how .cardart{
+    width:100%; height:auto; display:block; border-radius:8px;
+    margin:-4px 0 14px;
+  }
   .how b{display:block; font-size:14px; margin-bottom:6px;}
   .how span{font-size:13px; color:var(--sub); line-height:1.7;}
   .sw{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:1px;}
@@ -90,7 +94,10 @@
     font-size:13px; letter-spacing:.24em; color:var(--sub);
     font-weight:500; margin:0 0 26px;
   }
-  .why div{margin-bottom:26px;}
+  .why div{margin-bottom:38px;}
+  .why .whyart{
+    width:100%; height:auto; display:block; border-radius:10px; margin-bottom:16px;
+  }
   .why div:last-child{margin-bottom:0;}
   .why b{display:block; font-size:16.5px; margin-bottom:6px;}
   .why p{margin:0; font-size:14.5px; color:var(--sub); max-width:36em;}
@@ -208,9 +215,15 @@
     </p>
 
     <div class="how">
-      <div><b><span class="sw" style="background:#4d8dff"></span>1つめの色を上げる</b><span>ここから聞きます、の合図。一瞬かざすだけでよく、上げ続ける必要はありません。</span></div>
-      <div><b><span class="sw" style="background:#4ade80"></span>2つめの色を上げる</b><span>ちょっと待って、の合図。考えこんでも、勝手に送られません。</span></div>
-      <div><b>「はい」と言う</b><span>これで送ります。何も言わずに数秒黙っても、同じように送られます。</span></div>
+      <div>
+        <img class="cardart" src="card1_blue.png" alt="コミカルな人物が青いペンを高く掲げて話している線画" width="1024" height="1024" loading="lazy">
+        <b><span class="sw" style="background:#4d8dff"></span>1つめの色を上げる</b><span>ここから聞きます、の合図。一瞬かざすだけでよく、上げ続ける必要はありません。</span></div>
+      <div>
+        <img class="cardart" src="card2_green.png" alt="緑のペンを掲げて考えこんでいる人物の線画" width="1024" height="1024" loading="lazy">
+        <b><span class="sw" style="background:#4ade80"></span>2つめの色を上げる</b><span>ちょっと待って、の合図。考えこんでも、勝手に送られません。</span></div>
+      <div>
+        <img class="cardart" src="card3_send.png" alt="言葉が紙飛行機になって飛んでいく線画" width="1024" height="1024" loading="lazy">
+        <b>「はい」と言う</b><span>これで送ります。何も言わずに数秒黙っても、同じように送られます。</span></div>
     </div>
 
     <p class="freecolor">
@@ -223,6 +236,7 @@
       <h2>なぜ、色なのか</h2>
 
       <div>
+        <img class="whyart" src="why1_mic.png" alt="開きっぱなしのマイクが、電話中の人・独り言・会話を全部吸い込んでいる線画" width="1168" height="880" loading="lazy">
         <b>ひとりごとまで聞かれたくない。</b>
         <p>「ねえ○○」と呼びかけて始めるタイプの道具は、その一言を聞き逃さないために、
         <strong>ずっとマイクを開けたままにしています。</strong>電話の声も、家族との会話も、その間ずっと通り過ぎていきます。
@@ -230,6 +244,7 @@
       </div>
 
       <div>
+        <img class="whyart" src="why2_wake.png" alt="眠っているノートパソコンと、青いペンを見て目を覚ましたノートパソコンを並べた線画" width="1168" height="880" loading="lazy">
         <b>合図があってから、動きはじめる。</b>
         <p>呼びかけを待つ仕組みは、待っている間もずっと動き続けます。
         ColorCue は<strong>合図を見てから動き出します。</strong>それまでは、ただカメラに色が映っているかを見ているだけです。
@@ -237,6 +252,7 @@
       </div>
 
       <div>
+        <img class="whyart" src="why3_local.png" alt="ノートパソコンの中で完結する回路と、切れたクラウドへの線を描いた線画" width="1168" height="880" loading="lazy">
         <b>AIのAPIは使いません。</b>
         <p>ColorCue は<strong>あなたのパソコンの中だけで動く小さなプログラム</strong>です。
         どこかのサービスに登録して鍵をもらう、といったことは一切ありません。
@@ -244,6 +260,7 @@
       </div>
 
       <div>
+        <img class="whyart" src="why4_kit.png" alt="ノートパソコン、青ペン、緑ペン、オレンジの付箋、マスキングテープを並べた線画" width="1168" height="880" loading="lazy">
         <b>ノートパソコンがあれば、始められます。</b>
         <p>カメラは最初から付いています。合図に使う色は、
         <strong>ペンでも、付箋でも、マスキングテープでも構いません。</strong>
