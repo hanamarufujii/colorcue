@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>播磨坂スタジオ 音声駆動UI v1</title>
+<style>
+  :root{
+    --bg:#000;
+    --fg:#fff;
+    --dim:#7a7a7a;
+    --line:#2a2a2a;
+    --a:#ff4d4d;
+    --b:#4dc3ff;
+    --panel:#0d0d0d;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    overflow:hidden;
+  }
+  #app{display:grid; grid-template-columns:1fr 360px; height:100vh;}
+  body.hidePanel #app{grid-template-columns:1fr 0;}
+  body.hidePanel #panel{display:none;}
+
+  /* ---- 発話表示（プロジェクター投映のメイン面） ---- */
+  #speech{
+    display:flex; flex-direction:column; justify-content:center;
+    padding:5vh 5vw; min-width:0; gap:3vh;
+  }
+  #interim{
+    font-size:clamp(20px,3.2vw,52px); line-height:1.4; color:var(--dim);
+    min-height:1.4em; word-break:break-word;
+  }
+  #final{
+    font-size:clamp(28px,5vw,88px); line-height:1.3; font-weight:700;
+    word-break:break-word;
+  }
+  #final:empty::before{content:"青を上げて話す"; color:#333; font-weight:400;}
+  #count{ display:none; align-items:center; gap:22px; margin-bottom:1vh; }
+  #count.on{ display:flex; }
+  #countBar{
+    flex:1; height:22px; border-radius:999px; background:#1c1c1c;
+    overflow:hidden; border:1px solid #2e2e2e;
+  }
+  #countBar i{
+    display:block; height:100%; width:100%; border-radius:999px;
+    background:#4ade80; transition:background .2s;
+  }
+  #count.warn #countBar i{ background:#ffb84d; }
+  #count.hot  #countBar i{ background:var(--a); }
+  #count.hold #countBar i{ background:var(--b); }
+  #count.hold #countBar{ border-color:var(--b); }
+  #pending{
+    display:none; margin-top:2vh; padding:18px 22px;
+    border:2px solid #ffb84d; border-radius:8px; color:#ffb84d;
+    font-size:clamp(18px,2vw,32px); line-height:1.5; word-break:break-word;
+  }
+  /* 遠くから見て分かるように大きく出す */
+  #state{
+    display:flex; align-items:flex-start; gap:clamp(24px,4vw,64px);
+    color:var(--dim);
+  }
+  #state .lamp{
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    font-size:clamp(13px,1.1vw,17px); letter-spacing:.14em; white-space:nowrap;
+  }
+  .dot{
+    width:clamp(64px,7vw,110px); height:clamp(64px,7vw,110px);
+    border-radius:50%; background:#1e1e1e;
+    border:2px solid #2e2e2e; display:block;
+    transition:background .08s, box-shadow .08s;
+  }
+  .dot.on{ box-shadow:0 0 46px currentColor, 0 0 90px currentColor; border-color:currentColor; }
+  .dot.a{color:var(--a);} .dot.b{color:var(--b);}
+  .dot.a.on{background:var(--a);} .dot.b.on{background:var(--b);}
+  #micDot{color:#4ade80; background:#1e1e1e;}
+  #micDot.on{background:#4ade80;}
+  #sent{font-size:clamp(20px,2.4vw,40px); color:var(--fg); letter-spacing:.06em;}
+  #fps{font-size:12px; color:#3a3a3a; align-self:flex-end;}
+
+  /* ---- サイドパネル ---- */
+  #panel{
+    background:var(--panel); border-left:1px solid var(--line);
+    padding:14px; overflow-y:auto; font-size:13px;
+  }
+  #stageWrap{position:relative; margin-bottom:12px;}
+  canvas#stage{width:100%; display:block; background:#111; border-radius:6px; cursor:crosshair;}
+  h2{font-size:11px; letter-spacing:.14em; color:var(--dim); margin:18px 0 8px; font-weight:600;}
+  h2:first-child{margin-top:0;}
+  button{
+    font:inherit; background:#1c1c1c; color:var(--fg); border:1px solid #333;
+    border-radius:6px; padding:8px 12px; cursor:pointer;
+  }
+  button:hover{background:#262626;}
+  button.primary{background:#fff; color:#000; border-color:#fff; font-weight:600;}
+  button.arm{outline:2px solid #fff;}
+  .row{display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;}
+  .swatch{width:22px;height:22px;border-radius:4px;border:1px solid #444;flex:none;}
+  label.slider{display:block; margin-bottom:10px; color:var(--dim);}
+  label.slider span{color:var(--fg);}
+  input[type=range]{width:100%;}
+  #log{list-style:none; margin:0; padding:0;}
+  #log li{border-bottom:1px solid var(--line); padding:8px 0; line-height:1.5;}
+  #log time{display:block; color:var(--dim); font-size:11px; margin-bottom:2px;}
+  #msg{color:#ffb84d; line-height:1.6; margin-bottom:10px;}
+  #msg:empty{display:none;}
+  kbd{background:#222;border:1px solid #444;border-radius:4px;padding:1px 5px;font-size:11px;}
+  .hint{color:var(--dim); line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <main id="speech">
+    <div id="state">
+      <span class="lamp"><span class="dot a" id="dotA"></span>青を上げた</span>
+      <span class="lamp"><span class="dot" id="micDot"></span>聞いている</span>
+      <span class="lamp"><span class="dot b" id="dotB"></span>緑でポーズ</span>
+      <span class="lamp"><span id="sent">送信 0</span>　</span>
+      <span id="fps"></span>
+    </div>
+    <div id="count">
+      <div id="countBar"><i></i></div>
+    </div>
+    <div id="interim"></div>
+    <div id="final"></div>
+    <div id="pending"></div>
+  </main>
+
+  <aside id="panel">
+    <div id="msg"></div>
+
+    <div id="stageWrap">
+      <canvas id="stage" width="640" height="480"></canvas>
+    </div>
+
+    <div class="row">
+      <button id="btnStart" class="primary">カメラとマイクを開始</button>
+    </div>
+
+    <h2>色の登録（キャリブレーション）</h2>
+    <div class="row">
+      <button id="calA">A を登録</button>
+      <div class="swatch" id="swA"></div>
+      <button id="calB">B を登録</button>
+      <div class="swatch" id="swB"></div>
+    </div>
+    <p class="hint">ボタンを押してから、映像の中のその色を<b>クリック</b>します。手袋が無くても、付箋やマグカップなど色のはっきりしたもので試せます。</p>
+
+    <h2>調整</h2>
+    <label class="slider">色の許容範囲 <span id="vHue"></span><input type="range" id="sHue" min="4" max="60" value="18"></label>
+    <label class="slider">最低の面積 <span id="vMin"></span><input type="range" id="sMin" min="10" max="600" value="60"></label>
+    <label class="slider">挙手ラインの高さ <span id="vLine"></span><input type="range" id="sLine" min="10" max="90" value="45"></label>
+    <label class="slider">くすみの下限 <span id="vSat"></span><input type="range" id="sSat" min="5" max="90" value="35"></label>
+    <label class="slider">黙ってから送るまで <span id="vSil"></span><input type="range" id="sSil" min="1" max="8" value="3"></label>
+
+    <h2>記録</h2>
+    <div class="row">
+      <button id="btnResend" class="primary" style="display:none">もう一度送る</button>
+      <button id="btnCopy">全文をコピー</button>
+      <button id="btnClear">消去</button>
+    </div>
+    <ul id="log"></ul>
+
+    <h2>キー操作</h2>
+    <p class="hint">
+      <kbd>space</kbd> 押している間だけ青を上げたのと同じ（テスト用）<br>
+      <kbd>R</kbd> 未送信の文をもう一度送る（緑は「タイマー停止」に変更）<br>
+      <kbd>H</kbd> このパネルを隠す／出す<br>
+      <kbd>F</kbd> 全画面
+    </p>
+  </aside>
+
+</div>
+
+<video id="cam" autoplay playsinline muted style="display:none"></video>
+
+<script>
+"use strict";
+
+/* =========================================================
+   播磨坂スタジオ 音声駆動UI v1
+   - MacBook内蔵カメラのカラートラッキングで色の上下を検知
+   - A（青）を上げている間だけマイクが開く（上げていないときは何も聞かない）
+   - A（青）を下げたら、聞き取った文をブリッジへ渡す。
+     ブリッジが最前面のアプリに貼り付けて Return を押す
+   - macOS の音声コントロールは使わない（常時集音を避けるため）
+   ========================================================= */
+
+const PROC_W = 160, PROC_H = 120;     // 解析用の縮小サイズ
+const DEBOUNCE = 3;                    // 状態が変わるのに必要な連続フレーム数
+const LOST_LIMIT = 33;                 // これだけ見失ったら「下げた」とみなして送る（約2秒）
+
+const video  = document.getElementById('cam');
+const stage  = document.getElementById('stage');
+const sctx   = stage.getContext('2d', { willReadFrequently:false });
+const proc   = document.createElement('canvas');
+proc.width = PROC_W; proc.height = PROC_H;
+const pctx   = proc.getContext('2d', { willReadFrequently:true });
+
+const elInterim = document.getElementById('interim');
+const elFinal   = document.getElementById('final');
+const elMsg     = document.getElementById('msg');
+const elMic     = document.getElementById('micDot');
+const elFps     = document.getElementById('fps');
+const elLog     = document.getElementById('log');
+const elSent    = document.getElementById('sent');
+const elPending = document.getElementById('pending');
+const btnResend = document.getElementById('btnResend');
+const elCount   = document.getElementById('count');
+const elCountBar= document.querySelector('#countBar i');
+const dot = { A:document.getElementById('dotA'), B:document.getElementById('dotB') };
+const sw  = { A:document.getElementById('swA'),  B:document.getElementById('swB')  };
+
+/* ---------- 設定（localStorageに保存） ---------- */
+const DEFAULTS = { hue:18, minPx:60, line:45, sat:35, silence:3, A:null, B:null };
+let cfg = Object.assign({}, DEFAULTS);
+try { Object.assign(cfg, JSON.parse(localStorage.getItem('harimazaka-voice-ui') || '{}')); } catch(e){}
+const saveCfg = () => { try { localStorage.setItem('harimazaka-voice-ui', JSON.stringify(cfg)); } catch(e){} };
+
+/* ---------- 置換表（words.json・管理はClaude） ---------- */
+let words = { exact:{}, replace:{} };
+fetch('words.json', { cache:'no-store' })
+  .then(r => r.json())
+  .then(j => { words = { exact:j.exact || {}, replace:j.replace || {} }; })
+  .catch(() => {});   // 無くても動く
+
+function fixWords(text){
+  const t = text.trim();
+  const ex = words.exact[t] ?? words.exact[t.replace(/\s+/g,'')];
+  if (ex !== undefined) return ex;
+  let out = text;
+  for (const [from, to] of Object.entries(words.replace)) out = out.split(from).join(to);
+  return out;
+}
+
+/* ---------- 色の変換 ---------- */
+function rgb2hsv(r,g,b){
+  r/=255; g/=255; b/=255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx-mn;
+  let h = 0;
+  if (d !== 0){
+    if (mx === r)      h = ((g-b)/d) % 6;
+    else if (mx === g) h = (b-r)/d + 2;
+    else               h = (r-g)/d + 4;
+    h *= 60; if (h < 0) h += 360;
+  }
+  return { h, s: mx === 0 ? 0 : d/mx, v: mx };
+}
+function hueDist(a,b){ const d = Math.abs(a-b) % 360; return d > 180 ? 360-d : d; }
+
+/* ---------- 状態 ---------- */
+const channels = {
+  A: { color:cfg.A, raised:false, streak:0, lost:0, blob:null },
+  B: { color:cfg.B, raised:false, streak:0, lost:0, blob:null }
+};
+let armed = null;          // キャリブレーション待ちのチャンネル
+let running = false;
+
+function paintSwatch(k){
+  const c = channels[k].color;
+  sw[k].style.background = c ? `rgb(${c.r},${c.g},${c.b})` : 'transparent';
+}
+paintSwatch('A'); paintSwatch('B');
+
+/* ---------- スライダー ---------- */
+const sliders = [
+  ['sHue','vHue','hue', v => v + '°'],
+  ['sMin','vMin','minPx', v => v + 'px'],
+  ['sLine','vLine','line', v => v + '%'],
+  ['sSat','vSat','sat', v => v + '%'],
+  ['sSil','vSil','silence', v => v + '秒']
+];
+for (const [id, out, key, fmt] of sliders){
+  const el = document.getElementById(id), label = document.getElementById(out);
+  el.value = cfg[key];
+  label.textContent = fmt(cfg[key]);
+  el.addEventListener('input', () => {
+    cfg[key] = Number(el.value);
+    label.textContent = fmt(cfg[key]);
+    saveCfg();
+  });
+}
+
+/* ---------- カメラ ---------- */
+document.getElementById('btnStart').addEventListener('click', start);
+
+async function start(){
+  elMsg.textContent = '';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{ width:{ ideal:640 }, height:{ ideal:480 } }, audio:false
+    });
+    video.srcObject = stream;
+    await video.play();
+    running = true;
+    document.getElementById('btnStart').textContent = '動作中';
+    document.getElementById('btnStart').classList.remove('primary');
+    // requestAnimationFrame はウインドウが隠れると止まる。
+    // Claude Code を前面に置いたまま使うので setInterval で回す。
+    if (timer) clearInterval(timer);
+    timer = setInterval(loop, 60);
+  } catch(err){
+    elMsg.textContent = 'カメラを開けませんでした：' + err.name +
+      '。file:// で開いている場合は、同じフォルダの start.command から起動してください。';
+    return;
+  }
+  initSpeech();
+}
+
+/* ---------- 毎フレームの処理 ---------- */
+let lastT = performance.now(), frames = 0, timer = null;
+
+function loop(){
+  if (!running) return;
+  const W = stage.width, H = stage.height;
+
+  // 左右反転して描く（鏡像の方が体を動かしやすい）
+  sctx.save(); sctx.translate(W,0); sctx.scale(-1,1);
+  sctx.drawImage(video, 0, 0, W, H);
+  sctx.restore();
+
+  pctx.save(); pctx.translate(PROC_W,0); pctx.scale(-1,1);
+  pctx.drawImage(video, 0, 0, PROC_W, PROC_H);
+  pctx.restore();
+
+  const data = pctx.getImageData(0,0,PROC_W,PROC_H).data;
+  for (const k of ['A','B']) channels[k].blob = findBlob(data, channels[k].color);
+
+  const lineY = H * cfg.line / 100;
+
+  // 挙手ライン
+  sctx.strokeStyle = 'rgba(255,255,255,.35)';
+  sctx.setLineDash([6,6]); sctx.lineWidth = 1;
+  sctx.beginPath(); sctx.moveTo(0,lineY); sctx.lineTo(W,lineY); sctx.stroke();
+  sctx.setLineDash([]);
+
+  for (const k of ['A','B']){
+    const ch = channels[k], blob = ch.blob;
+
+    // 華丸さんの指示（2026-09-20）により、見失っても「下げた」と同じ扱いにする。
+    // ＝ ペンが画面から外れても送信する。
+    if (!blob){
+      ch.streak = 0;
+      if (ch.raised && ++ch.lost >= LOST_LIMIT){ ch.lost = 0; setRaised(k, false); }   // ランプを戻すだけ。送信はしない
+    } else {
+      ch.lost = 0;
+      const isUp = (blob.y / PROC_H) * H < lineY;
+      // 連続 DEBOUNCE フレーム同じ判定になって初めて状態を変える
+      if (isUp === ch.raised){ ch.streak = 0; }
+      else if (++ch.streak >= DEBOUNCE){ ch.streak = 0; setRaised(k, isUp); }
+    }
+
+    if (blob){
+      const cx = (blob.x / PROC_W) * W, cy = (blob.y / PROC_H) * H;
+      const r  = Math.max(10, Math.sqrt(blob.count) * (W / PROC_W) * 0.8);
+      sctx.strokeStyle = k === 'A' ? '#ff4d4d' : '#4dc3ff';
+      sctx.lineWidth = ch.raised ? 4 : 2;
+      sctx.beginPath(); sctx.arc(cx, cy, r, 0, Math.PI*2); sctx.stroke();
+      sctx.fillStyle = sctx.strokeStyle;
+      sctx.font = 'bold 16px sans-serif';
+      sctx.fillText(k, cx - 5, cy - r - 6);
+    }
+  }
+
+  drawCountdown();
+
+  frames++;
+  const now = performance.now();
+  if (now - lastT > 1000){ elFps.textContent = Math.round(frames*1000/(now-lastT)) + ' fps'; frames = 0; lastT = now; }
+}
+
+/* ---------- 色ブロブの重心を求める ---------- */
+function findBlob(data, target){
+  if (!target) return null;
+  const hueTol = cfg.hue, satMin = cfg.sat/100, vMin = 0.20;
+  let sx = 0, sy = 0, n = 0;
+  for (let y = 0; y < PROC_H; y++){
+    for (let x = 0; x < PROC_W; x++){
+      const i = (y*PROC_W + x) * 4;
+      const { h, s, v } = rgb2hsv(data[i], data[i+1], data[i+2]);
+      if (s < satMin || v < vMin) continue;
+      if (hueDist(h, target.h) > hueTol) continue;
+      sx += x; sy += y; n++;
+    }
+  }
+  if (n < cfg.minPx) return null;
+  return { x: sx/n, y: sy/n, count: n };
+}
+
+/* ---------- 送信（最前面のアプリへ貼り付けて Return） ---------- */
+let sentCount = 0, lastSent = 0;
+let pending = '';             // 送れなかった文。消さずに持っておく
+const SEND_COOLDOWN = 1200;   // 連続で下がったときの二重送信よけ（ミリ秒）
+
+function setPending(text){
+  pending = text;
+  elPending.textContent = text ? ('未送信：' + text) : '';
+  elPending.style.display = text ? 'block' : 'none';
+  btnResend.style.display = text ? 'inline-block' : 'none';
+}
+
+async function resend(){
+  if (!pending) return;
+  const t = pending;
+  lastSent = 0;               // 再送はクールダウンを無視する
+  await sendText(t);
+}
+
+async function sendText(text){
+  const now = Date.now();
+  if (now - lastSent < SEND_COOLDOWN){
+    // ここで捨てていたのをやめる。未送信として残す
+    setPending(text);
+    elMsg.textContent = '間隔が短いので送りませんでした。「もう一度送る」で送れます。';
+    beep(200, 0.2);
+    return;
+  }
+  lastSent = now;
+
+  try {
+    const res = await fetch('/send', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const out = await res.json();
+    if (out.ok){
+      sentCount++;
+      elSent.textContent = '送信 ' + sentCount;
+      beep(880, 0.08);
+      elMsg.textContent = '';
+      setPending('');
+    } else {
+      beep(200, 0.25);
+      setPending(text);
+      elMsg.textContent = 'Returnを送れませんでした：' + (out.error || '') +
+        '（システム設定 → プライバシーとセキュリティ → アクセシビリティ で、'
+        + 'ターミナル／bridge.py を動かしているアプリに許可が要ります）';
+    }
+  } catch(e){
+    beep(200, 0.25);
+    setPending(text);
+    elMsg.textContent = 'ブリッジに繋がりません。start.command から起動していますか？（' + e.message + '）';
+  }
+}
+
+// 送れたかどうかを音で返す（壁を見ていなくても分かるように）
+let actx = null;
+function beep(freq, dur){
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = freq; o.type = 'sine';
+    g.gain.setValueAtTime(0.0001, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, actx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur + 0.02);
+  } catch(e){}
+}
+
+/* ---------- 挙手・下ろしのイベント ---------- */
+function setRaised(k, up){
+  channels[k].raised = up;
+  dot[k].classList.toggle('on', up);
+  // 青を上げたら聞き始める。すでに聞いていればポーズを解いてカウント再開
+  if (k === 'A' && up){
+    if (wantSpeech){
+      if (paused){ paused = false; elMsg.textContent = ''; }
+      armSilence();
+    } else {
+      speechOn();
+    }
+  }
+
+  // 緑を上げたらポーズ。下げても何も起きない（青を上げるまで解けない）
+  if (k === 'B' && up && wantSpeech){
+    paused = true;
+    clearTimeout(silenceTimer);
+    silenceDeadline = 0;
+    elMsg.textContent = 'ポーズ中。送るときは「はい」、カウントを戻すときは青を上げてください。';
+  }
+
+}
+
+/* ---------- キャリブレーション ---------- */
+for (const k of ['A','B']){
+  document.getElementById('cal'+k).addEventListener('click', () => {
+    armed = (armed === k) ? null : k;
+    for (const j of ['A','B']) document.getElementById('cal'+j).classList.toggle('arm', armed === j);
+    elMsg.textContent = armed ? `映像の中の ${armed} の色をクリックしてください。` : '';
+  });
+}
+
+stage.addEventListener('click', ev => {
+  if (!armed || !running) return;
+  const r = stage.getBoundingClientRect();
+  const px = Math.floor((ev.clientX - r.left) / r.width  * PROC_W);
+  const py = Math.floor((ev.clientY - r.top)  / r.height * PROC_H);
+  const d  = pctx.getImageData(Math.max(0,px-2), Math.max(0,py-2), 5, 5).data;
+
+  let r0=0,g0=0,b0=0,n=0;
+  for (let i=0;i<d.length;i+=4){ r0+=d[i]; g0+=d[i+1]; b0+=d[i+2]; n++; }
+  r0=Math.round(r0/n); g0=Math.round(g0/n); b0=Math.round(b0/n);
+
+  const hsv = rgb2hsv(r0,g0,b0);
+  channels[armed].color = { r:r0, g:g0, b:b0, h:hsv.h };
+  cfg[armed] = channels[armed].color;
+  saveCfg(); paintSwatch(armed);
+
+  elMsg.textContent = hsv.s < 0.25
+    ? `${armed} に登録しましたが、色が薄すぎて追跡が不安定になります。もっと鮮やかな色を使ってください。`
+    : '';
+
+  document.getElementById('cal'+armed).classList.remove('arm');
+  armed = null;
+});
+
+/* ---------- 音声認識（Web Speech API） ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, wantSpeech = false, buffer = '', lastInterim = '';
+let silenceTimer = null;
+const END_WORD = /[\s、,]*(はい|ハイ|ハイッ|送信|そうしん|ソウシン)[\s。．、,.!！]*$/;   // 文末の合図。文中に出てきた場合は対象外
+
+let silenceDeadline = 0;
+let paused = false;          // 緑で入るポーズ。青を上げるまで解けない
+
+function armSilence(){
+  clearTimeout(silenceTimer);
+  if (paused){ silenceDeadline = 0; return; }   // ポーズ中は自動送信しない
+  silenceDeadline = Date.now() + cfg.silence * 1000;
+  silenceTimer = setTimeout(() => finalize('無音'), cfg.silence * 1000);
+}
+
+// 送信までの残り時間を出す（毎フレーム loop から呼ばれる）
+function drawCountdown(){
+  if (!wantSpeech){
+    elCount.classList.remove('on','warn','hot','hold');
+    return;
+  }
+  if (paused){
+    elCount.classList.add('on','hold');
+    elCount.classList.remove('warn','hot');
+    elCountBar.style.width = '100%';
+    return;
+  }
+  if (!silenceDeadline){
+    elCount.classList.remove('on','warn','hot','hold');
+    return;
+  }
+  elCount.classList.remove('hold');
+  const left = Math.max(0, silenceDeadline - Date.now());
+  const ratio = Math.min(1, left / (cfg.silence * 1000));
+  elCount.classList.add('on');
+  elCount.classList.toggle('warn', ratio <= .5 && ratio > .25);
+  elCount.classList.toggle('hot',  ratio <= .25);
+  elCountBar.style.width = (ratio * 100).toFixed(1) + '%';
+}
+
+function initSpeech(){
+  if (!SR){
+    elMsg.textContent = 'この環境では音声認識が使えません。Chromeで開いてください。';
+    return;
+  }
+  rec = new SR();
+  rec.lang = 'ja-JP';
+  window.__recReady = true;
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  rec.onstart = () => { elMic.classList.add('on'); elMsg.textContent = ''; };
+
+  rec.onresult = ev => {
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++){
+      const t = ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) buffer += t;
+      else interim += t;
+    }
+    lastInterim = interim;
+    elInterim.textContent = interim;
+    elFinal.textContent   = (buffer + interim);
+
+    const whole = (buffer + interim).trim();
+    // 文末が「はい」なら即送信。ただし「はい」だけの発話では送らない
+    if (END_WORD.test(whole) && whole.replace(END_WORD, '').trim()){
+      finalize('はい');
+      return;
+    }
+    armSilence();
+  };
+
+  // 無音が続くとChromeが勝手に止めるので、挙げている間は繋ぎ直す
+  rec.onend = () => {
+    elMic.classList.remove('on');
+    if (wantSpeech) { try { rec.start(); } catch(e){} }
+  };
+
+  rec.onerror = ev => {
+    if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+    if (ev.error === 'not-allowed'){
+      wantSpeech = false;
+      elMsg.textContent = 'マイクが許可されていません。Chromeのアドレスバー左のアイコンから許可してください。';
+    } else if (ev.error === 'network'){
+      elMsg.textContent = '音声認識がネットワークに繋がりませんでした。file:// で開いていると起きます。start.command から起動してください。';
+    } else {
+      elMsg.textContent = '音声認識エラー：' + ev.error;
+    }
+  };
+}
+
+function speechOn(){
+  if (!rec || wantSpeech) return;
+  wantSpeech = true; buffer = ''; lastInterim = ''; paused = false;
+  elInterim.textContent = '';
+  // 前に喋った文は消さない。新しい認識が届いたときに初めて置き換わる
+  try {
+    rec.start();
+  } catch(e){
+    elMsg.textContent = 'マイクを開けませんでした：' + e.name + ' / ' + e.message;
+  }
+  armSilence();
+}
+
+function finalize(why){
+  if (!rec || !wantSpeech) return;
+  wantSpeech = false;
+  clearTimeout(silenceTimer);
+  silenceDeadline = 0; paused = false;
+  elCount.classList.remove('on','warn','hot','hold');
+  try { rec.stop(); } catch(e){}
+  elMic.classList.remove('on');
+
+  // rec.stop() の直後に最後の「確定」が届くことがあるので少し待つ。
+  // それでも確定していない分（暫定）は捨てずに足して送る。
+  setTimeout(() => {
+    let raw = (buffer + ' ' + lastInterim).replace(/\s+/g, ' ').trim();
+    if (why === 'はい') raw = raw.replace(END_WORD, '').trim();   // 合図の「はい」は送らない
+    const text = fixWords(raw);
+    elInterim.textContent = '';
+    if (text){
+      elFinal.textContent = text;
+      addLog(text);
+      sendText(text);
+    } else {
+      elMsg.textContent = '聞き取れませんでした。送っていません。';
+    }
+    buffer = ''; lastInterim = '';
+  }, 400);
+}
+
+/* ---------- 記録 ---------- */
+const history = [];
+function addLog(text){
+  const t = new Date();
+  history.push({ t, text });
+  const li = document.createElement('li');
+  const time = document.createElement('time');
+  time.textContent = t.toLocaleTimeString('ja-JP');
+  li.appendChild(time);
+  li.appendChild(document.createTextNode(text));
+  elLog.insertBefore(li, elLog.firstChild);
+}
+
+async function copyAll(){
+  if (!history.length){ elMsg.textContent = 'コピーする記録がまだありません。'; return; }
+  const text = history.map(h => h.text).join('\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    elMsg.textContent = `${history.length}件をコピーしました。`;
+    setTimeout(() => { if (elMsg.textContent.endsWith('件をコピーしました。')) elMsg.textContent = ''; }, 2500);
+  } catch(e){
+    // 挙手はクリック等の操作ではないため、Chromeがクリップボード書き込みを拒むことがある。
+    // その場合は選択済みのテキスト欄を出して ⌘C で取れるようにする。
+    showFallbackCopy(text);
+  }
+}
+
+function showFallbackCopy(text){
+  document.getElementById('fallbackWrap')?.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'fallbackWrap';
+  wrap.innerHTML = '<p class="hint" style="margin:8px 0 4px">自動コピーが拒否されました。下の枠は選択済みです。<kbd>⌘C</kbd> でコピーしてください。</p>';
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.rows = 6;
+  ta.style.cssText = 'width:100%;background:#000;color:#fff;border:1px solid #444;border-radius:6px;padding:8px;font:inherit;';
+  wrap.appendChild(ta);
+  elMsg.after(wrap);
+  ta.focus(); ta.select();
+}
+btnResend.addEventListener('click', resend);
+document.getElementById('btnCopy').addEventListener('click', copyAll);
+document.getElementById('btnClear').addEventListener('click', () => {
+  history.length = 0; elLog.innerHTML = ''; elFinal.textContent = ''; elInterim.textContent = '';
+});
+
+/* ---------- キー操作 ---------- */
+let spaceDown = false;
+addEventListener('keydown', ev => {
+  if (ev.code === 'Space' && !spaceDown && !ev.repeat){
+    spaceDown = true; ev.preventDefault(); setRaised('A', true);
+  }
+  if (ev.key === 'r' || ev.key === 'R') resend();
+  if (ev.key === 'h' || ev.key === 'H') document.body.classList.toggle('hidePanel');
+  if (ev.key === 'f' || ev.key === 'F'){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+addEventListener('keyup', ev => {
+  if (ev.code === 'Space'){ spaceDown = false; ev.preventDefault(); setRaised('A', false); }
+});
+
+/* ---------- 起動時の環境チェック ---------- */
+if (location.protocol === 'file:'){
+  elMsg.textContent = 'file:// で開いています。音声認識が動かない可能性が高いので、同じフォルダの start.command から起動してください。';
+}
+</script>
+</body>
+</html>

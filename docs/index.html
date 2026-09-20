@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ColorCue — セットアップ</title>
+<meta name="description" content="色を合図に、声で文字を入力する。ColorCue のセットアップ手順。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0e10;
+    --panel:#15171a;
+    --fg:#f2f1ee;
+    --sub:#9a978f;
+    --line:#26292e;
+    --blue:#4d8dff;
+    --green:#4ade80;
+    --warn:#ffb84d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:"Zen Kaku Gothic New",-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.85; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:780px; margin:0 auto; padding:0 22px 120px;}
+
+  /* ---- 見出し ---- */
+  header{padding:76px 0 40px;}
+  .logo{
+    display:inline-flex; align-items:center; gap:12px;
+    font-size:13px; letter-spacing:.3em; color:var(--sub); margin-bottom:26px;
+  }
+  .logo i{
+    width:14px; height:14px; border-radius:50%; background:var(--blue);
+    box-shadow:0 0 14px var(--blue); display:block;
+  }
+  h1{
+    font-size:clamp(34px,6vw,58px); font-weight:700; line-height:1.25;
+    letter-spacing:-.01em; margin:0 0 22px;
+  }
+  .lead{font-size:clamp(15px,1.6vw,18px); color:var(--sub); max-width:34em; margin:0;}
+
+  /* ---- 仕組みの3行 ---- */
+  .how{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
+    margin:44px 0 0;
+  }
+  .how div{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:20px 18px;
+  }
+  .how b{display:block; font-size:14px; margin-bottom:6px;}
+  .how span{font-size:13px; color:var(--sub); line-height:1.7;}
+  .sw{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:1px;}
+
+  /* ---- OS切り替え ---- */
+  .ostabs{display:flex; gap:10px; margin:56px 0 8px;}
+  .ostabs button{
+    font:inherit; font-size:14px; padding:10px 20px; border-radius:999px;
+    background:transparent; color:var(--sub);
+    border:1px solid var(--line); cursor:pointer;
+  }
+  .ostabs button.on{background:var(--fg); color:#111; border-color:var(--fg); font-weight:700;}
+  .detected{font-size:12px; color:var(--sub); margin:0 0 30px;}
+
+  /* ---- 進捗 ---- */
+  .progress{
+    position:sticky; top:0; z-index:5; background:var(--bg);
+    padding:14px 0 12px; border-bottom:1px solid var(--line); margin-bottom:8px;
+  }
+  .bar{height:6px; border-radius:999px; background:#1e2126; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0; background:var(--green); transition:width .25s;}
+  .progress p{margin:9px 0 0; font-size:12px; color:var(--sub);}
+
+  /* ---- ステップ ---- */
+  .step{
+    border:1px solid var(--line); border-radius:12px; background:var(--panel);
+    padding:22px 24px; margin:14px 0;
+  }
+  .step.done{border-color:#2f5d43; background:#131a15;}
+  .step h2{
+    font-size:17px; margin:0 0 10px; display:flex; align-items:center; gap:12px;
+  }
+  .num{
+    flex:none; width:28px; height:28px; border-radius:50%;
+    background:#22262c; color:var(--sub);
+    font-size:13px; display:grid; place-items:center;
+  }
+  .step.done .num{background:var(--green); color:#0d1a11; font-weight:700;}
+  .step p{margin:0 0 12px; font-size:14.5px; color:var(--sub);}
+  .step p:last-child{margin-bottom:0;}
+  .step strong{color:var(--fg); font-weight:500;}
+  .step ol,.step ul{margin:0 0 12px; padding-left:1.3em; font-size:14.5px; color:var(--sub);}
+  .step li{margin-bottom:5px;}
+  code{
+    background:#101216; border:1px solid var(--line); border-radius:5px;
+    padding:2px 7px; font-size:13px; font-family:ui-monospace,Menlo,Consolas,monospace;
+    color:#cfd6e4;
+  }
+  .check{
+    display:flex; align-items:center; gap:10px; margin-top:16px;
+    font-size:13.5px; color:var(--sub); cursor:pointer; user-select:none;
+  }
+  .check input{width:18px; height:18px; accent-color:var(--green); cursor:pointer;}
+  .dl{
+    display:inline-block; background:var(--blue); color:#fff; font-weight:700;
+    text-decoration:none; padding:13px 26px; border-radius:9px; font-size:15px;
+    margin:4px 0 10px;
+  }
+  .note{
+    border-left:3px solid var(--warn); padding:2px 0 2px 14px;
+    color:var(--warn); font-size:13.5px; margin:14px 0 0;
+  }
+
+  .done-all{
+    display:none; border:1px solid #2f5d43; background:#131a15; border-radius:12px;
+    padding:28px; margin-top:22px;
+  }
+  .done-all.on{display:block;}
+  .done-all h2{margin:0 0 10px; font-size:20px;}
+
+  footer{
+    border-top:1px solid var(--line); margin-top:64px; padding-top:24px;
+    font-size:12px; color:#5f5c56;
+  }
+  a{color:var(--blue);}
+
+  @media (max-width:640px){
+    .how{grid-template-columns:1fr;}
+    header{padding:48px 0 28px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo"><i></i>COLORCUE</div>
+    <h1>色を上げると、<br>声が文字になる。</h1>
+    <p class="lead">
+      カメラが色の目印を見ています。青を上げると聞き始め、言い終わって「はい」と言うと、
+      いま開いているアプリにその文がそのまま入ります。キーボードには触りません。
+      Mac と Windows、どちらでも動きます。
+    </p>
+
+    <div class="how">
+      <div><b><span class="sw" style="background:#4d8dff"></span>青を上げる</b><span>聞き始めます。一瞬でよく、上げっぱなしにする必要はありません。</span></div>
+      <div><b><span class="sw" style="background:#4ade80"></span>緑を上げる</b><span>ポーズ。考えている間、勝手に送られません。</span></div>
+      <div><b>「はい」と言う</b><span>送信。黙ったままでも数秒で送られます。</span></div>
+    </div>
+  </header>
+
+  <div class="ostabs">
+    <button data-os="mac">Mac</button>
+    <button data-os="win">Windows</button>
+  </div>
+  <p class="detected" id="detected"></p>
+
+  <div class="progress">
+    <div class="bar"><i id="barFill"></i></div>
+    <p id="progressText">0 / 0 完了</p>
+  </div>
+
+  <div id="steps"></div>
+
+  <div class="done-all" id="doneAll">
+    <h2>準備できました</h2>
+    <p style="margin:0;color:var(--sub);font-size:14.5px">
+      使いたいアプリ（Claude、ChatGPT、メール、Word、何でも）を前面にして、入力欄をクリックしてから、
+      青を上げて話してください。ColorCue の画面は、隠れない場所に置いたままにしてください。
+    </p>
+  </div>
+
+  <footer>
+    ColorCue · <a href="https://github.com/hanamarufujii/colorcue">GitHub</a> · U-MA Inc.<br>
+    音声認識は Chrome の機能を使います。聞き取り中の音声は Google のサーバーで処理されます。
+  </footer>
+
+</div>
+
+<script>
+const ZIP = "https://github.com/hanamarufujii/colorcue/archive/refs/heads/main.zip";
+
+const STEPS = {
+  mac: [
+    {
+      t: "ColorCue をダウンロードする",
+      html: `<a class="dl" href="${ZIP}">ColorCue をダウンロード</a>
+        <p>ダウンロードした zip をダブルクリックして展開します。出てきた <code>colorcue-main</code> というフォルダを、
+        書類フォルダなど分かりやすい場所に置いてください。</p>`
+    },
+    {
+      t: "起動する",
+      html: `<p>フォルダの中の <code>start.command</code> を<strong>右クリック → 「開く」</strong>で開きます。
+        （ダブルクリックだと「開発元を確認できません」と出て開けません。右クリックから開くと、確認のうえ開けます）</p>
+        <p>黒いウィンドウが出て「待ち受け中」と表示され、Chrome が自動で開けば成功です。
+        <strong>この黒いウィンドウは閉じないでください。</strong>閉じると止まります。</p>`
+    },
+    {
+      t: "カメラとマイクを許可する",
+      html: `<p>開いたページの<strong>「カメラとマイクを開始」</strong>を押します。Chrome が許可を聞いてくるので、
+        <strong>両方とも「許可」</strong>を選んでください。</p>
+        <p>右側に自分の映像が出れば成功です。</p>`
+    },
+    {
+      t: "キーを送る許可を出す（ここが一番の関門）",
+      html: `<p>ColorCue は、聞き取った文を「貼り付けて Enter を押す」という形で他のアプリに渡します。
+        macOS では、そのために<strong>2つの許可</strong>が要ります。</p>
+        <ol>
+          <li><strong>アクセシビリティ</strong>：システム設定 → プライバシーとセキュリティ → アクセシビリティ →
+              一覧の<strong>「ターミナル」をオン</strong>。無ければ左下の <code>+</code> から
+              アプリケーション → ユーティリティ → ターミナル を追加</li>
+          <li><strong>オートメーション</strong>：初めて送信したときに
+              「"ターミナル" が "システムイベント" を制御することを許可しますか？」と出ます。<strong>「OK」</strong>を押します</li>
+        </ol>
+        <p class="note">アクセシビリティをオンにしたら、<strong>ターミナルを ⌘Q で完全に終了して、もう一度 start.command から起動し直してください。</strong>
+        再起動しないと許可が効きません。ここでつまずく人がほとんどです。</p>`
+    },
+    {
+      t: "色の目印を用意して登録する",
+      html: `<p><strong>青</strong>と<strong>緑</strong>、2つの目印を用意します。濃い色のペン、付箋、リストバンド、テープ、何でも構いません。</p>
+        <p class="note">肌の色に近いもの（オレンジ・ベージュ・赤）は<strong>絶対に避けてください。</strong>顔ごと認識してしまい、まったく動きません。</p>
+        <p>ページの<strong>「A を登録」</strong>を押してから、映像に映っている<strong>青いものをクリック</strong>。
+        同じように<strong>「B を登録」</strong>→ 緑をクリック。円が付けば成功です。</p>
+        <p>円が出ないときは、右側の<strong>「最低の面積」を小さく</strong>してみてください。細いものは拾いにくいです。</p>`
+    },
+    {
+      t: "使ってみる",
+      html: `<p>文字を入れたいアプリ（Claude、ChatGPT、メール、何でも）を<strong>前面</strong>にして、入力欄をクリックします。</p>
+        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。隠れるとカメラが止まります。
+        画面が2つあるなら、片方に置いておくのが確実です。</p>
+        <p>青を上げて、話して、「はい」と言う。文が入って送信されれば完成です。</p>`
+    }
+  ],
+
+  win: [
+    {
+      t: "Python を入れる",
+      html: `<p>Windows には Python が入っていないので、先に入れます。</p>
+        <ol>
+          <li><a href="https://www.python.org/downloads/">python.org</a> を開いて、黄色い「Download Python」ボタンを押す</li>
+          <li>ダウンロードしたファイルを実行</li>
+          <li><strong>最初の画面で「Add python.exe to PATH」に必ずチェックを入れてから</strong>「Install Now」</li>
+        </ol>
+        <p class="note">このチェックを忘れると、あとで起動できません。入れ忘れたら、もう一度インストーラを実行して直せます。</p>`
+    },
+    {
+      t: "ColorCue をダウンロードする",
+      html: `<a class="dl" href="${ZIP}">ColorCue をダウンロード</a>
+        <p>ダウンロードした zip を右クリック →「すべて展開」。出てきた <code>colorcue-main</code> フォルダを、
+        ドキュメントなど分かりやすい場所に置いてください。</p>`
+    },
+    {
+      t: "起動する",
+      html: `<p>フォルダの中の <code>start.bat</code> をダブルクリックします。</p>
+        <p>「WindowsによってPCが保護されました」と出たら、<strong>「詳細情報」→「実行」</strong>を押してください。</p>
+        <p>黒いウィンドウが出て「待ち受け中」と表示され、ブラウザが開けば成功です。
+        <strong>この黒いウィンドウは閉じないでください。</strong></p>
+        <p class="note">ブラウザが Chrome 以外で開いたら、アドレスバーの <code>localhost:8777/index.html</code> を
+        コピーして、<strong>Chrome</strong> に貼り直してください。音声認識は Chrome でしか動きません。</p>`
+    },
+    {
+      t: "カメラとマイクを許可する",
+      html: `<p>Chrome で開いたページの<strong>「カメラとマイクを開始」</strong>を押します。
+        許可を聞かれたら<strong>両方とも「許可」</strong>。</p>
+        <p>右側に自分の映像が出れば成功です。</p>
+        <p class="note">Windows の設定でカメラ・マイクがブロックされていると出ません。その場合は
+        設定 → プライバシーとセキュリティ → カメラ／マイク で、アプリのアクセスをオンにしてください。</p>`
+    },
+    {
+      t: "色の目印を用意して登録する",
+      html: `<p><strong>青</strong>と<strong>緑</strong>、2つの目印を用意します。濃い色のペン、付箋、リストバンド、テープ、何でも構いません。</p>
+        <p class="note">肌の色に近いもの（オレンジ・ベージュ・赤）は<strong>絶対に避けてください。</strong>顔ごと認識してしまい、まったく動きません。</p>
+        <p>ページの<strong>「A を登録」</strong>を押してから、映像に映っている<strong>青いものをクリック</strong>。
+        同じように<strong>「B を登録」</strong>→ 緑をクリック。円が付けば成功です。</p>
+        <p>円が出ないときは、右側の<strong>「最低の面積」を小さく</strong>してみてください。</p>`
+    },
+    {
+      t: "使ってみる",
+      html: `<p>文字を入れたいアプリを<strong>前面</strong>にして、入力欄をクリックします。</p>
+        <p class="note">ColorCue の画面は、<strong>他のウィンドウに完全に隠れない場所</strong>に置いてください。隠れるとカメラが止まります。</p>
+        <p>青を上げて、話して、「はい」と言う。文が入って送信されれば完成です。</p>
+        <p>Windows では特別な許可は要りません。Mac より簡単です。</p>`
+    }
+  ]
+};
+
+const KEY = "colorcue-setup";
+let os = /Mac|iPhone|iPad/.test(navigator.platform + navigator.userAgent) ? "mac" : "win";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){}
+
+document.getElementById("detected").textContent =
+  os === "mac" ? "お使いの環境を Mac と判定しました。違っていれば上で切り替えてください。"
+               : "お使いの環境を Windows と判定しました。違っていれば上で切り替えてください。";
+
+function render(){
+  document.querySelectorAll(".ostabs button").forEach(b =>
+    b.classList.toggle("on", b.dataset.os === os));
+
+  const list = STEPS[os];
+  const box = document.getElementById("steps");
+  box.innerHTML = "";
+
+  list.forEach((s, i) => {
+    const id = os + ":" + i;
+    const done = !!state[id];
+    const el = document.createElement("section");
+    el.className = "step" + (done ? " done" : "");
+    el.innerHTML =
+      `<h2><span class="num">${done ? "✓" : i + 1}</span>${s.t}</h2>` + s.html +
+      `<label class="check"><input type="checkbox" ${done ? "checked" : ""} data-id="${id}">できた</label>`;
+    box.appendChild(el);
+  });
+
+  // チェックしても描き直さない（画面が跳ねないように、その行だけ変える）
+  box.querySelectorAll("input[type=checkbox]").forEach(c => {
+    c.addEventListener("change", () => {
+      state[c.dataset.id] = c.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+      const step = c.closest(".step");
+      const n = step.querySelector(".num");
+      step.classList.toggle("done", c.checked);
+      n.textContent = c.checked ? "✓" : (Array.from(box.children).indexOf(step) + 1);
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = STEPS[os].length;
+  const done = STEPS[os].filter((_, i) => state[os + ":" + i]).length;
+  document.getElementById("barFill").style.width = (done / total * 100) + "%";
+  document.getElementById("progressText").textContent = `${done} / ${total} 完了`;
+  document.getElementById("doneAll").classList.toggle("on", done === total);
+}
+
+document.querySelectorAll(".ostabs button").forEach(b =>
+  b.addEventListener("click", () => { os = b.dataset.os; render(); }));
+
+render();
+</script>
+</body>
+</html>
